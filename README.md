@@ -74,7 +74,7 @@ origin. It lives in its **own repo**, `Agriprotimelinecustomedition`.
 ## Deploy (GitHub Pages)
 Put all four files at the **root** of the repo:
 - `index.html`  (app + embedded V icon)
-- `sw.js`  (cache `agripro-timeline-personal-v2` — bump the version string on each deploy)
+- `sw.js`  (cache `agripro-timeline-personal-v6` — bump the version string on each deploy)
 - `.nojekyll`  (empty file; stops Jekyll processing)
 - `README.md`
 

@@ -181,15 +181,14 @@
   /* ---- swipe-to-log: inline date + Tree ID picker that slides into a node ---- */
   .node-label{overflow:hidden;}                                  /* clip the sliding tray */
   .node-slide{display:flex;align-items:center;transition:transform .28s cubic-bezier(.4,0,.2,1);touch-action:pan-y;}
-  .node.logging .node-slide{transform:translateX(calc(-1 * var(--log-w,19.6rem)));will-change:transform;}
+  .node.logging .node-slide{transform:translateX(calc(-1 * var(--log-w,21rem)));will-change:transform;}
   .node-face{flex:0 0 100%;min-width:0;}                          /* the normal name + date */
-  .node-log{flex:0 0 var(--log-w,19.6rem);display:flex;align-items:center;gap:.4rem;padding-left:.6rem;pointer-events:none;}
+  .node-log{flex:0 0 var(--log-w,21rem);display:flex;align-items:center;gap:.35rem;padding-left:.5rem;pointer-events:none;}
   .node.logging .node-log{pointer-events:auto;}
-  .node-log .nl-date{position:relative;flex:1 1 auto;min-width:0;height:2.3rem;border:1.5px solid var(--accent-line);border-radius:.6rem;background:var(--accent-soft);display:flex;align-items:center;padding:0 .55rem;overflow:hidden;}
-  .node-log .nl-date input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;margin:0;padding:0;cursor:pointer;}
-  .node-log .nl-date input[type=date]::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;}
-  .node-log .nl-date .nl-ph{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:800;color:var(--accent);pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .node-log .nl-tree{flex:0 0 6rem;height:2.3rem;border:1.5px solid var(--line);border-radius:.6rem;background:#fff;font-size:.72rem;font-weight:800;color:var(--ink);text-align:center;padding:0 .3rem;min-width:0;}
+  /* visible native date input — iOS renders its own reliable date control */
+  .node-log .nl-date-input{flex:1 1 auto;min-width:0;height:2.3rem;border:1.5px solid var(--accent-line);border-radius:.6rem;background:var(--accent-soft);color:var(--accent);font-size:.78rem;font-weight:800;padding:0 .5rem;-webkit-appearance:none;appearance:none;font-family:inherit;}
+  .node-log .nl-date-input::-webkit-date-and-time-value{text-align:left;}
+  .node-log .nl-tree{flex:0 0 4.6rem;height:2.3rem;border:1.5px solid var(--line);border-radius:.6rem;background:#fff;font-size:.72rem;font-weight:800;color:var(--ink);text-align:center;padding:0 .25rem;min-width:0;}
   .node-log .nl-tree::placeholder{color:var(--ink-faint);font-weight:700;}
   .node-log .nl-ok{flex:0 0 2.3rem;height:2.3rem;border-radius:.6rem;border:1.5px solid var(--accent);background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;transition:.15s;}
   .node-log .nl-ok:disabled{opacity:.4;cursor:default;}
@@ -262,7 +261,7 @@
   .tn-flag svg{width:13px;height:13px;flex:0 0 auto;}
   .today-eyebrow svg, .tn-label svg{width:12px;height:12px;vertical-align:-1px;}
   /* rectangular loop-back: same 6px width as the rail, dotted, branching below the recovery node */
-  .rail-loop{position:absolute;left:-2.9rem;right:66%;top:-1rem;bottom:-1.6rem;border:6px dotted var(--accent-bright);border-right:none;pointer-events:none;z-index:0;animation:loopIn .45s ease;}
+  .rail-loop{position:absolute;left:-2.9rem;right:66%;top:-1rem;bottom:-1.6rem;border:6px dotted var(--accent-bright);border-right:none;pointer-events:none;z-index:0;opacity:1;}
   @media(min-width:480px){.rail-loop{left:-4.8rem;}}
   /* top connector: drop from the top arm into the Induction node */
   .rail-loop::after{content:"";position:absolute;right:-3px;top:0;height:1rem;border-left:6px dotted var(--accent-bright);}
@@ -2470,7 +2469,7 @@ function renderRail(){
   const rail = document.getElementById('rail');
   const _recIdx = stages.findIndex(z=>z.id==='recovery');
   const _tt = computeToday();
-  const atRecovery = (ai===_recIdx) || (_tt && _tt.curIdx===_recIdx);
+  const atRecovery = (ai===_recIdx);   // loop shows only when the recovery node is selected
 
   // phase brackets (left) — boundaries derived from stage ids, not literal indices,
   // so they stay correct no matter how many micro-stages are inserted between anchors.
@@ -2527,7 +2526,7 @@ function renderRail(){
       : `<div class="node-date ${d.date?'':'tbd'}">${ico('calendar')} ${fmtDate(d.date)}</div>`;
     const logTray = `<div class="node-log" aria-hidden="true">
         <button type="button" class="nl-cancel" data-logcancel="${idx}" aria-label="${LL('Cancel','取消')}" title="${LL('Cancel','取消')}">${ico('x')}</button>
-        <label class="nl-date"><input type="date" data-logdate="${idx}" aria-label="${LL('Date you saw this stage','你看到此阶段的日期')}"><span class="nl-ph" data-logph="${idx}">${ico('calendar')} ${LL('Date','日期')}</span></label>
+        <input type="date" class="nl-date-input" data-logdate="${idx}" aria-label="${LL('Date you saw this stage','你看到此阶段的日期')}">
         <input type="text" class="nl-tree" data-logtree="${idx}" maxlength="12" placeholder="${LL('Tree','树号')}" aria-label="${LL('Tree ID, optional','树编号，可选')}">
         <button type="button" class="nl-ok" data-logok="${idx}" disabled aria-label="${LL('Save log','保存记录')}">${ico('check')}</button>
       </div>`;
@@ -2566,7 +2565,6 @@ function renderRail(){
     const dateInput=el.querySelector(`[data-logdate="${idx}"]`);
     const treeInput=el.querySelector(`[data-logtree="${idx}"]`);
     const okBtn=el.querySelector(`[data-logok="${idx}"]`);
-    const ph=el.querySelector(`[data-logph="${idx}"]`);
 
     const isActive=()=> state.activeIndex===idx;
     const openLog=()=>{ if(!isActive()) return; rail.querySelectorAll('.node.logging').forEach(o=>{ if(o!==el) o.classList.remove('logging'); }); el.classList.add('logging'); };
@@ -2578,6 +2576,14 @@ function renderRail(){
       // Tapping a dot always moves the selection here — there is always exactly one active stage.
       setStage(idx);
       rail.querySelectorAll('.node').forEach(o=>o.classList.toggle('active', +o.dataset.idx===idx));
+      // Keep the recovery loop-back in sync: the lightweight path doesn't rebuild the rail,
+      // so add/remove the .rail-loop element here based on whether recovery is now selected.
+      (function syncLoop(){
+        const recIdx = getStagesNow().findIndex(z=>z.id==='recovery');
+        const existing = rail.querySelector('.rail-loop');
+        if(idx===recIdx){ if(!existing){ const d=document.createElement('div'); d.className='rail-loop'; d.innerHTML='<i></i>'; rail.appendChild(d); } }
+        else if(existing){ existing.remove(); }
+      })();
       renderDetail(); renderScreen(); decorateIcons();
       updateLeftBracket();
     };
@@ -2608,11 +2614,9 @@ function renderRail(){
       slide.addEventListener('touchend', end);
     }
 
-    // Date chosen -> enable ✓ and show the chosen date in the placeholder.
+    // Date chosen -> enable ✓ (the visible native input shows the chosen date itself).
     if(dateInput) dateInput.addEventListener('change',()=>{
-      const v=dateInput.value;
-      if(okBtn) okBtn.disabled=!v;
-      if(ph) ph.innerHTML = v ? `${ico('calendar')} ${fmtDate(new Date(v))}` : `${ico('calendar')} ${LL('Date','日期')}`;
+      if(okBtn) okBtn.disabled=!dateInput.value;
     });
     // ✓ commit -> log via the shared record path, then close + re-render.
     if(okBtn) okBtn.addEventListener('click',(e)=>{
