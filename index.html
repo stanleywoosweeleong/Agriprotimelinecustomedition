@@ -79,6 +79,10 @@
   .tab-btn{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;padding:.6rem .4rem;border-radius:.7rem;border:1.5px solid var(--line);background:var(--surface,#fff);color:var(--ink-soft);font-size:.78rem;font-weight:800;cursor:pointer;transition:.15s;-webkit-tap-highlight-color:transparent;}
   .tab-btn svg{width:15px;height:15px;flex-shrink:0;}
   .tab-btn span{white-space:nowrap;}
+  /* iOS first-tap fix: children must not be the hit target, or the first tap on the inner
+     span/svg can be swallowed before the delegated click fires. Route taps to the button. */
+  .tab-btn > *{pointer-events:none;}
+  .tab-btn{-webkit-touch-callout:none;touch-action:manipulation;}
   .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
   @media(hover:hover){ .tab-btn:hover:not(.active){border-color:var(--accent-bright);color:var(--ink);} }
   @media(max-width:500px){ .tab-btn{font-size:.66rem;padding:.55rem .15rem;gap:.18rem;} .tab-btn svg{width:12px;height:12px;} .launch-strip{gap:.28rem;} }
@@ -101,7 +105,8 @@
   .screen-body{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:calc(1.25rem + env(safe-area-inset-top)) 1rem calc(5.5rem + env(safe-area-inset-bottom));width:100%;max-width:46rem;margin:0 auto;}
   .screen-body > * + *{margin-top:1.5rem;}
   .fab-group{position:fixed;bottom:calc(1.1rem + env(safe-area-inset-bottom));right:calc(1.1rem + env(safe-area-inset-right));z-index:210;display:flex;gap:.6rem;align-items:center;}
-  .fab{width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.2);}
+  .fab{width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.2);touch-action:manipulation;}
+  .fab > *{pointer-events:none;}
   .fab svg{width:21px;height:21px;}
   .fab-home{background:var(--surface,#fff);color:var(--accent);border:1.5px solid var(--line);}
   .fab-home:hover{background:var(--accent-soft);border-color:var(--accent-bright);}
@@ -2925,6 +2930,7 @@ function renderDetail(){
 
 // DETAIL — a dedicated full screen for one view of the chosen stage.
 function renderScreen(){
+  try{ window.__view=state.view; }catch(_){}
   const screen=document.getElementById('screen');
   const rec=document.getElementById('recordScreen');
   if(rec) rec.hidden = (state.view!=='record');
@@ -3208,9 +3214,36 @@ function wire(){
     else if(act==='delete'){ if(state.confirmCloneDelete===id){ deleteClone(id); } else { state.confirmCloneDelete=id; renderCloneManage(); } }
   });
   const gddInfoBtn=document.getElementById('gddInfoBtn'); if(gddInfoBtn) gddInfoBtn.addEventListener('click',()=>{ closeModals(); openModal('gddModal'); });
-  document.getElementById('detail').addEventListener('click',e=>{
-    if(e.target.closest('[data-record]')){ state.view='record'; renderHistory(); renderScreen(); const rb=document.getElementById('recordBody'); if(rb) rb.scrollTop=0; return; }
-    const t=e.target.closest('[data-tab]'); if(!t) return; if(state.activeIndex==null) return; state.detailTab=t.dataset.tab; state.view='detail'; renderScreen();
+  // Single source of truth for opening the calibration log + a detail tab.
+  const openRecordView=()=>{ state.view='record'; renderHistory(); renderScreen(); const rb=document.getElementById('recordBody'); if(rb) rb.scrollTop=0; };
+  const openDetailTab=(tabId)=>{ if(state.activeIndex==null) return; state.detailTab=tabId; state.view='detail'; renderScreen(); };
+  const _detailEl=document.getElementById('detail');
+  // iOS reliability: when an input on the home screen holds focus (keyboard up), the FIRST tap
+  // is consumed to blur/dismiss and the click never reaches the button — the classic
+  // "needs two taps". We handle the launcher buttons on pointerup (which still fires on that
+  // first tap), blur any active field ourselves, and suppress the duplicate click that follows.
+  let _swallowClickUntil=0;
+  const _launchFromEvent=(e)=>{
+    const recBtn=e.target.closest && e.target.closest('[data-record]');
+    const tabBtn=e.target.closest && e.target.closest('[data-tab]');
+    if(!recBtn && !tabBtn) return false;
+    // Drop keyboard / stale focus so it can't eat this interaction.
+    if(document.activeElement && document.activeElement!==document.body && typeof document.activeElement.blur==='function'){
+      try{ document.activeElement.blur(); }catch(_){}
+    }
+    if(recBtn){ openRecordView(); return true; }
+    if(tabBtn){ openDetailTab(tabBtn.dataset.tab); return true; }
+    return false;
+  };
+  _detailEl.addEventListener('pointerup',e=>{
+    if(e.pointerType==='mouse' && e.button!==0) return;       // ignore right/middle mouse
+    if(_launchFromEvent(e)){ _swallowClickUntil=Date.now()+700; }
+  });
+  _detailEl.addEventListener('click',e=>{
+    // If pointerup already handled this interaction, swallow the synthesized click.
+    if(Date.now()<_swallowClickUntil){ _swallowClickUntil=0; e.preventDefault(); e.stopPropagation(); return; }
+    // Fallback for environments without pointer events (older engines / mouse-only).
+    _launchFromEvent(e);
   });
   const goRecHome=()=>{ state.view='home'; renderScreen(); };
   ['recordHomeFab','recordHomeStrip'].forEach(id=>{ const b=document.getElementById(id); if(b) b.addEventListener('click',goRecHome); });
@@ -3255,6 +3288,47 @@ function initPWA(){
 wire();
 initPWA();
 renderAll();
+
+/* ---------- TEMP diagnostic HUD (v34d) — only active when URL ends with #debug ----------
+   Append #debug to the live URL, tap Record ONCE, screenshot the panel. Remove next build. */
+(function debugHUD(){
+  try{
+    if(!/debug/i.test(location.hash)) return;
+    const box=document.createElement('div');
+    box.style.cssText='position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;max-height:42vh;overflow:auto;'
+      +'background:rgba(0,0,0,.88);color:#0f0;font:11px/1.35 ui-monospace,Menlo,monospace;'
+      +'padding:8px 10px;border-radius:10px;white-space:pre-wrap;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+    const head=document.createElement('div');
+    head.style.cssText='color:#fff;font-weight:700;margin-bottom:4px;display:flex;justify-content:space-between;';
+    head.innerHTML='<span>TAP DIAGNOSTIC — tap Record once</span>';
+    const clr=document.createElement('button');
+    clr.textContent='clear';
+    clr.style.cssText='background:#333;color:#fff;border:0;border-radius:6px;padding:2px 8px;font:11px monospace;';
+    head.appendChild(clr);
+    const log=document.createElement('div');
+    box.appendChild(head); box.appendChild(log);
+    document.body.appendChild(box);
+    let n=0;
+    const recScreen=()=>{ const r=document.getElementById('recordScreen'); return r? (r.hidden?'hidden':'SHOWN') : 'n/a'; };
+    const line=(t)=>{ n++; const a=document.createElement('div'); a.textContent=String(n).padStart(2,'0')+'  '+t; log.appendChild(a); box.scrollTop=box.scrollHeight; };
+    clr.addEventListener('click',()=>{ log.innerHTML=''; n=0; });
+    line('ready. active el='+(document.activeElement&&document.activeElement.id||document.activeElement&&document.activeElement.tagName||'none'));
+    ['pointerdown','touchstart','touchend','click','focusin','focusout','scroll'].forEach(type=>{
+      document.addEventListener(type,(e)=>{
+        const onRec = e.target && e.target.closest && e.target.closest('[data-record]');
+        const tag = e.target ? (e.target.id||e.target.tagName) : '?';
+        if(type==='scroll'){ return; } // skip noisy scroll
+        // only log taps that touch the record area, plus focus changes (keyboard dismissal)
+        if(onRec || type==='focusin' || type==='focusout'){
+          const act = (document.activeElement&&(document.activeElement.id||document.activeElement.tagName))||'none';
+          line(type+'  target='+tag+(onRec?'  [REC]':'')+'  view='+(window.__view||'?')+'  recScreen='+recScreen()+'  active='+act);
+        }
+      },true);
+    });
+    line('hint: if you see touchstart+touchend but NO click on tap-1, it is a tap-cancel/scroll issue.');
+    line('hint: if focusout fires on tap-1 and click only on tap-2, the keyboard/blur is eating tap-1.');
+  }catch(_){}
+})();
 </script>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>

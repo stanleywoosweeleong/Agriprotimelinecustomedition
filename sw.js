@@ -2,7 +2,7 @@
    Cache name is namespaced so it never collides with the baseline app
    on the shared stanleywoosweeleong.github.io origin. Bump the version
    string on every deploy to force clients to pick up the new build. */
-const CACHE = 'agripro-timeline-personal-v33';
+const CACHE = 'agripro-timeline-personal-v35';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', e => {
