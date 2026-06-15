@@ -75,11 +75,12 @@
   .lang-toggle:active{transform:scale(.96);}
   .lang-toggle svg{width:16px;height:16px;}
   .tab-strip{display:flex;gap:.35rem;position:sticky;top:var(--nav-h,3.9rem);z-index:6;background:var(--bg);padding:.5rem 0;}
-  .tab-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;padding:.6rem .4rem;border-radius:.7rem;border:1.5px solid var(--line);background:var(--surface,#fff);color:var(--ink-soft);font-size:.78rem;font-weight:800;cursor:pointer;transition:.15s;-webkit-tap-highlight-color:transparent;}
+  .tab-btn{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;padding:.6rem .4rem;border-radius:.7rem;border:1.5px solid var(--line);background:var(--surface,#fff);color:var(--ink-soft);font-size:.78rem;font-weight:800;cursor:pointer;transition:.15s;-webkit-tap-highlight-color:transparent;}
   .tab-btn svg{width:15px;height:15px;flex-shrink:0;}
+  .tab-btn span{white-space:nowrap;}
   .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
   .tab-btn:hover:not(.active){border-color:var(--accent-bright);color:var(--ink);}
-  @media(max-width:500px){ .tab-btn{font-size:.72rem;padding:.55rem .25rem;gap:.25rem;} .tab-btn svg{width:13px;height:13px;} }
+  @media(max-width:500px){ .tab-btn{font-size:.66rem;padding:.55rem .15rem;gap:.18rem;} .tab-btn svg{width:12px;height:12px;} .launch-strip{gap:.28rem;} }
   .tab-hint{font-size:.82rem;font-weight:700;color:var(--ink-faint);text-align:center;padding:1.4rem 1.2rem;border:1.5px dashed var(--line);border-radius:1rem;background:var(--surface,#fff);line-height:1.5;}
   .tab-hint b{color:var(--ink-soft);}
   .launch-strip{display:flex;gap:.4rem;}
@@ -187,7 +188,7 @@
      above sibling nodes (which are absolutely positioned and don't reflow) */
   .node-logpanel{position:absolute;left:-2.1rem;right:.5rem;top:calc(50% + 14px);z-index:40;
      background:#fff;border:1.5px solid var(--accent-line);border-radius:.9rem;
-     box-shadow:0 10px 28px rgba(8,60,40,.16);padding:3.6rem .7rem .7rem;display:none;}
+     box-shadow:0 10px 28px rgba(8,60,40,.16);padding:3.25rem .7rem .7rem;display:none;}
   /* on mobile, stretch the card so it uses much more of the screen width */
   @media(max-width:479px){ .node-logpanel{left:-9.5rem;right:-1.6rem;} }
   .node.logging{z-index:50;}
@@ -2385,6 +2386,14 @@ function renderHistory(){
       const isTarget = (r.stage==='harvest');
       const anchorStageId = {induction:'pre_flower',bud:'bud_emergence',matchstick:'matchstick',anthesis:'flowering',harvest:'harvest'}[r.stage];
       let nextMarked=false;
+      // If every scheduled date falls in the same calendar year, drop the year for a
+      // cleaner display (so the Delete button doesn't get squeezed onto two lines).
+      // Keep the full year only when the season crosses into another year.
+      const _schedYears = r.schedule.map(st=>{ const d=parseLocalDate(st.date); return d?d.getFullYear():null; }).filter(y=>y!=null);
+      const _crossesYear = _schedYears.length ? (Math.min(..._schedYears) !== Math.max(..._schedYears)) : false;
+      const fmtSched = (ymd)=>{ const d=parseLocalDate(ymd); if(!d) return LL('TBD','待定');
+        return _crossesYear ? fmtYmd(ymd)
+          : d.toLocaleDateString(locOf(state.lang),{month:'short',day:'numeric'}); };
       const items = r.schedule.map((st,si)=>{
         const dt = parseLocalDate(st.date);
         const isAnchor = st.id ? (st.id===anchorStageId) : (si===0);
@@ -2399,7 +2408,7 @@ function renderHistory(){
           if(passed){ cls='passed'; tick=`<span class="sched-tick">${ico('check')}</span>`; }
           else if(!nextMarked){ cls='next'; nextMarked=true; tag=`<span class="sched-next-tag">${LL('next check','下次检查')}</span>`; }
         }
-        return `<div class="sched-item ${cls}"><span class="s-name">${tick}${esc(stageTitleById[st.id]||st.title)}${tag}</span><span class="sched-date">${st.date?esc(fmtYmd(st.date)):LL('TBD','待定')}</span></div>`;
+        return `<div class="sched-item ${cls}"><span class="s-name">${tick}${esc(stageTitleById[st.id]||st.title)}${tag}</span><span class="sched-date">${st.date?esc(fmtSched(st.date)):LL('TBD','待定')}</span></div>`;
       }).join('');
       schedHtml = `<div class="hist-sched"><div class="hist-sched-h">${isTarget?LL('Plan back from your harvest date — when to act','从采收日期倒推 — 何时行动'):LL('Schedule to harvest — when to re-check','直到采收的时间表 — 何时复查')}</div>${items}</div>`;
     }
