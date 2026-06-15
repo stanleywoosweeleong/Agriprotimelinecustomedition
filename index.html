@@ -79,16 +79,16 @@
   .tab-btn svg{width:15px;height:15px;flex-shrink:0;}
   .tab-btn span{white-space:nowrap;}
   .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-  .tab-btn:hover:not(.active){border-color:var(--accent-bright);color:var(--ink);}
+  @media(hover:hover){ .tab-btn:hover:not(.active){border-color:var(--accent-bright);color:var(--ink);} }
   @media(max-width:500px){ .tab-btn{font-size:.66rem;padding:.55rem .15rem;gap:.18rem;} .tab-btn svg{width:12px;height:12px;} .launch-strip{gap:.28rem;} }
   .tab-hint{font-size:.82rem;font-weight:700;color:var(--ink-faint);text-align:center;padding:1.4rem 1.2rem;border:1.5px dashed var(--line);border-radius:1rem;background:var(--surface,#fff);line-height:1.5;}
   .tab-hint b{color:var(--ink-soft);}
   .launch-strip{display:flex;gap:.4rem;}
   .tab-btn.launch{padding:.9rem .4rem;}
   .tab-btn.launch.disabled{opacity:.45;cursor:default;}
-  .tab-btn.launch.disabled:hover{border-color:var(--line);color:var(--ink-soft);}
+  @media(hover:hover){ .tab-btn.launch.disabled:hover{border-color:var(--line);color:var(--ink-soft);} }
   .record-btn{color:var(--accent);border-color:#bbf7d0;}
-  .record-btn:hover{border-color:var(--accent-bright);color:var(--accent);}
+  @media(hover:hover){ .record-btn:hover{border-color:var(--accent-bright);color:var(--accent);} }
   .screen{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
   .screen[hidden]{display:none;}
   body.screen-open{overflow:hidden;}
