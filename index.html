@@ -191,16 +191,16 @@
   .node.logging{z-index:50;}
   .node.logging .node-logpanel{display:block;}
   /* close (✕) pinned to the card's top-right corner */
-  .node-logpanel .nl-cancel{position:absolute;top:.55rem;right:.55rem;width:2.3rem;height:2.3rem;border-radius:.6rem;border:1.5px solid var(--line);background:#fff;color:var(--ink-faint);display:grid;place-items:center;cursor:pointer;transition:.15s;z-index:2;}
+  .node-logpanel .nl-cancel{position:absolute;top:.5rem;right:.5rem;width:1.75rem;height:1.75rem;border-radius:.5rem;border:1.5px solid var(--line);background:#fff;color:var(--ink-faint);display:grid;place-items:center;cursor:pointer;transition:.15s;z-index:2;}
   .node-logpanel .nl-cancel:hover{border-color:var(--ink-faint);color:var(--ink);}
-  .node-logpanel .nl-cancel svg{width:14px;height:14px;}
+  .node-logpanel .nl-cancel svg{width:13px;height:13px;}
   /* full-width native date input on its own row — iOS renders its own reliable control */
   .node-logpanel .nl-date-input{display:block;width:100%;box-sizing:border-box;height:2.7rem;line-height:2.7rem;border:1.5px solid var(--accent-line);border-radius:.7rem;background:#fff;color:var(--ink-soft);font-size:1rem;font-weight:700;padding:0 .7rem;font-family:inherit;text-align:left;margin-top:0;}
   .node-logpanel .nl-date-input::-webkit-date-and-time-value{text-align:left;margin:0;line-height:2.7rem;}
   .node-logpanel .nl-date-input::-webkit-calendar-picker-indicator{opacity:.6;}
   /* Tree ID on its own full-width row */
-  .node-logpanel .nl-tree{display:block;width:100%;box-sizing:border-box;height:2.6rem;border:1.5px solid var(--line);border-radius:.7rem;background:#fff;font-size:1rem;font-weight:700;color:var(--ink-soft);padding:0 .7rem;margin-top:.55rem;}
-  .node-logpanel .nl-tree::placeholder{color:var(--ink-soft);font-weight:700;}
+  .node-logpanel .nl-tree{display:block;width:100%;box-sizing:border-box;height:2.6rem;border:1.5px solid var(--line);border-radius:.7rem;background:#fff;font-size:1rem;font-weight:700;color:var(--ink);padding:0 .7rem;margin-top:.55rem;}
+  .node-logpanel .nl-tree::placeholder{color:var(--ink-faint);font-weight:500;opacity:1;}
   /* Save on its own full-width row */
   .node-logpanel .nl-ok{display:flex;width:100%;box-sizing:border-box;height:2.7rem;margin-top:1rem;border-radius:.7rem;border:1.5px solid var(--accent);background:var(--accent);color:#fff;align-items:center;justify-content:center;gap:.4rem;font-size:.92rem;font-weight:800;cursor:pointer;transition:.15s;font-family:inherit;}
   .node-logpanel .nl-ok:disabled{opacity:.4;cursor:default;}
