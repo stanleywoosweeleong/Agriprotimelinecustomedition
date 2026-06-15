@@ -177,6 +177,11 @@
     font-size:.66rem;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:var(--ink-faint);
     transition:.25s;}
   .node.active .node-elapsed{color:var(--accent);transform:scale(1.06);transform-origin:right;}
+  /* The first node (pre_flower) carries the "Dry Stress / 旱胁迫" label, which otherwise
+     sits right at the top where the Induction + cumulative brackets begin. Nudge it down
+     so it clears the bracket tops. */
+  .node.trigger .node-elapsed{transform:translateY(1.6rem);}
+  .node.trigger.active .node-elapsed{transform:translateY(1.6rem) scale(1.06);}
   .node-dot{position:absolute;left:34%;transform:translateX(-50%);width:42px;height:42px;border-radius:50%;
     background:var(--surface);border:3px solid var(--line);color:var(--ink-faint);
     display:grid;place-items:center;transition:.15s;box-shadow:var(--shadow);z-index:2;cursor:pointer;pointer-events:auto;}
@@ -2677,7 +2682,7 @@ function renderRail(){
     const iconSvg = ico(s.icon);
     const isSub = (s.dayOffset==null && s.id!=='recovery');   // folk micro-stage: no published day-count
     const leftTag = (s.id==='pre_flower') ? s.elapsedLabel
-                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('← Loop back to<br>Dry Stress','← 循环回到<br>旱胁迫')}</span>`
+                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('↺ Next<br>cycle','↺ 下一轮')}</span>`
                   : (s.id==='flowering') ? '<span class="daa-zero">0 DAA</span>'
                   : '';
     const dateLine = isSub
