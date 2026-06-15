@@ -164,7 +164,13 @@
   .l-dyn.unknown{border-color:var(--ink-faint);border-style:dashed;background:transparent;}
   .l-dyn.unknown span{color:var(--ink-faint);}
   .daa-zero{display:inline-block;color:var(--accent);font-weight:800;font-size:.66rem;letter-spacing:.02em;}
-  .loop-tag{display:inline-block;text-transform:none;color:inherit;font-weight:800;letter-spacing:0;line-height:1.25;white-space:normal;}
+  .loop-tag{display:inline-block;text-transform:none;color:inherit;font-weight:800;letter-spacing:0;line-height:1.25;white-space:nowrap;}
+  /* let the loop-back tag use the empty left margin so its lines never re-wrap */
+  /* Recovery loop-back tag lives in the clear band between the vertical phase-label strip
+     (~0.5rem wide on the far left) and the spine dot. Fixed left so it never overlaps the
+     RECOVERY label; text wraps to short lines within the band. */
+  .node-elapsed:has(.loop-tag){left:1.0rem;right:auto;width:calc(34% - 3.4rem);text-align:right;}
+  .loop-tag{white-space:normal;}
 
   .node{position:absolute;left:-2rem;right:-2rem;display:flex;align-items:center;height:58px;margin-top:-29px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;pointer-events:none;}
   .node-elapsed{position:absolute;left:0;width:calc(34% - 2.4rem);text-align:right;
@@ -190,6 +196,12 @@
      dash and pushes the risk phrase to its own line for a cleaner two-line read. */
   .node-name .nn-text{min-width:0;}
   .nn-risk{display:inline;}
+  /* Trailing CJK parenthetical (e.g. （第一波抽梢）): inline on desktop, own line on mobile,
+     kept intact so it never splits mid-phrase. */
+  /* Keep a trailing CJK parenthetical intact (never split mid-phrase). It stays inline and
+     only wraps to a new line AS A WHOLE when the label is long enough to need it — short
+     labels like 红眼（花前） stay on one line. */
+  .nn-paren{display:inline-block;white-space:nowrap;}
   @media(max-width:479px){
     .node-name .nn-risk{display:block;}
     .node-name .nn-dash{display:none;}
@@ -259,7 +271,7 @@
   .lang-zh .hist-sched-h{font-size:.84rem;font-weight:800;letter-spacing:0;text-transform:none;}
   .lang-zh .sched-item{font-size:.96rem;font-weight:700;}
   .lang-zh .sched-item.next,.lang-zh .sched-item.observed{font-weight:800;}
-  .lang-zh .sched-next-tag,.lang-zh .sched-done-tag{font-size:.74rem;font-weight:800;letter-spacing:0;text-transform:none;padding:.12rem .48rem;}
+  .lang-zh .sched-next-tag,.lang-zh .sched-done-tag{font-size:.74rem;font-weight:900;letter-spacing:0;text-transform:none;padding:.12rem .48rem;}
   .lang-zh .sched-tick svg{width:15px;height:15px;}
   .lang-zh .rec-btn{font-size:.84rem;font-weight:800;letter-spacing:0;text-transform:none;padding:.3rem .7rem;}
   .lang-zh .rec-btn svg{width:14px;height:14px;}
@@ -372,13 +384,13 @@
   .farm-btn:hover{filter:brightness(.97);}
   .farm-btn.danger{background:#fee2e2;border-color:#fecaca;color:#b91c1c;}
   .farm-msg{font-size:.72rem;font-weight:700;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:.5rem;padding:.45rem .55rem;margin-top:.5rem;}
-  .hist-note{font-size:.74rem;font-weight:600;color:var(--ink-faint);line-height:1.5;}
-  .hist-explain{font-size:.63rem;font-weight:700;color:var(--ink-faint);margin:-.15rem 0 .6rem;line-height:1.45;}
+  .hist-note{font-size:.88rem;font-weight:700;color:var(--ink-soft);line-height:1.55;}
+  .hist-explain{font-size:.8rem;font-weight:700;color:var(--ink-soft);margin:-.15rem 0 .6rem;line-height:1.5;}
   .hist-row{border:1.5px solid var(--c-line,var(--line));border-radius:.7rem;background:#fff;padding:.55rem .65rem;margin-bottom:.5rem;}
   .hist-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.25rem;}
-  .hist-clone{font-size:.82rem;font-weight:800;color:var(--ink);}
-  .hist-sub{font-size:.7rem;font-weight:700;color:var(--ink-soft);line-height:1.45;}
-  .hist-tree{display:inline-block;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);border-radius:1rem;padding:.1rem .4rem;margin-left:.35rem;vertical-align:middle;}
+  .hist-clone{font-size:.98rem;font-weight:800;color:var(--ink);}
+  .hist-sub{font-size:.86rem;font-weight:700;color:var(--ink-soft);line-height:1.5;}
+  .hist-tree{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);border-radius:1rem;padding:.12rem .45rem;margin-left:.35rem;vertical-align:middle;}
   .sync-note{margin-top:.6rem;font-size:.76rem;font-weight:600;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:.7rem;padding:.6rem .75rem;}
   #treeId.ask{border-color:var(--accent-bright);box-shadow:0 0 0 3px var(--accent-soft);}
   .hist-sort{display:flex;align-items:center;gap:.4rem;margin:0 0 .7rem;flex-wrap:wrap;}
@@ -386,8 +398,8 @@
   .hist-sort .hs-btn{font-family:inherit;font-size:.72rem;font-weight:700;color:var(--ink-soft);background:#fff;border:1px solid var(--line);border-radius:1rem;padding:.25rem .7rem;cursor:pointer;transition:all .15s;}
   .hist-sort .hs-btn:hover{border-color:var(--accent-bright);}
   .hist-sort .hs-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .hist-meta{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);margin-top:.3rem;}
-  .hist-drift{font-size:.62rem;font-weight:800;padding:.15rem .45rem;border-radius:1rem;white-space:nowrap;}
+  .hist-meta{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);margin-top:.3rem;}
+  .hist-drift{font-size:.74rem;font-weight:800;padding:.17rem .5rem;border-radius:1rem;white-space:nowrap;}
   .hist-drift.late{background:#fef3c7;color:#92400e;}
   .hist-drift.early{background:#dbeafe;color:#1e40af;}
   .hist-drift.ontime{background:var(--accent-soft);color:var(--accent);}
@@ -396,27 +408,27 @@
   .hist-purge svg{width:12px;height:12px;}
   .hist-purge.danger{background:#fee2e2;}
   .hist-sched{margin-top:.5rem;border-top:1px dashed var(--c-line,var(--line));padding-top:.45rem;}
-  .hist-sched-h{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin-bottom:.3rem;}
-  .sched-item{display:flex;align-items:center;justify-content:space-between;gap:.5rem;font-size:.7rem;font-weight:700;padding:.18rem 0;color:var(--ink-soft);}
+  .hist-sched-h{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin-bottom:.35rem;}
+  .sched-item{display:flex;align-items:center;justify-content:space-between;gap:.5rem;font-size:.86rem;font-weight:700;padding:.2rem 0;color:var(--ink-soft);}
   .sched-item .s-name{display:flex;align-items:center;gap:.3rem;min-width:0;}
   .sched-item.passed{color:var(--ink-faint);}
   .sched-item.next{color:var(--accent);font-weight:800;}
   .sched-tick{display:inline-flex;}
   .sched-tick svg{width:13px;height:13px;}
   .sched-date{white-space:nowrap;}
-  .sched-next-tag{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);padding:.1rem .35rem;border-radius:1rem;margin-left:.3rem;}
+  .sched-next-tag{font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);padding:.12rem .42rem;border-radius:1rem;margin-left:.3rem;}
   .sched-item.observed{color:var(--ink);font-weight:800;}
   .sched-item.observed .sched-tick{color:var(--accent);}
   .sched-item.passed .sched-tick{color:var(--ink-faint);}
-  .sched-done-tag{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);background:#f1f5f9;padding:.1rem .35rem;border-radius:1rem;margin-left:.3rem;}
+  .sched-done-tag{font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);background:#f1f5f9;padding:.12rem .42rem;border-radius:1rem;margin-left:.3rem;}
   .hist-foot{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.35rem;}
-  .rec-btn{display:inline-flex;align-items:center;gap:.25rem;font-size:.62rem;font-weight:800;color:var(--ink-soft);background:#fff;border:1.5px solid var(--c-line,var(--line));border-radius:.5rem;padding:.2rem .5rem;cursor:pointer;}
+  .rec-btn{display:inline-flex;align-items:center;gap:.25rem;font-size:.74rem;font-weight:800;color:var(--ink-soft);background:#fff;border:1.5px solid var(--c-line,var(--line));border-radius:.5rem;padding:.26rem .6rem;cursor:pointer;}
   .rec-btn svg{width:12px;height:12px;}
   .rec-btn.restore{color:var(--accent);border-color:var(--accent-bright);}
   .rec-btn.danger{background:#fee2e2;border-color:#fecaca;color:#b91c1c;}
   .hist-deleted-h{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:.7rem 0 .4rem;}
   .hist-row.deleted{display:flex;align-items:center;gap:.5rem;opacity:.75;background:#fafafa;}
-  .hist-row.deleted .hist-clone{font-size:.78rem;}
+  .hist-row.deleted .hist-clone{font-size:.9rem;}
   .hist-info{flex:1;min-width:0;}
   .rec-actions{display:flex;align-items:center;gap:.3rem;flex-shrink:0;}
   input[type=text],input[type=number],select,input[type=date]{
@@ -859,6 +871,17 @@
     <div class="modal-body" id="shareBody"></div>
   </div>
 </div>
+
+<div class="modal-bg" id="conflictModal">
+  <div class="modal-scrim" data-close></div>
+  <div class="modal">
+    <div class="modal-head">
+      <div class="l"><div class="ico" data-ico="info"></div><h3 data-i18n="conflict_title">Check this observation</h3></div>
+      <button class="icon-btn" data-close data-i18n-aria="aria_close" aria-label="Close" data-ico="x"></button>
+    </div>
+    <div class="modal-body"><p id="conflictBody" class="sync-note" style="margin-top:0"></p></div>
+  </div>
+</div>
 <script>
 /* =====================================================================
    ICONS — minimal inline SVG set (Lucide-style paths)
@@ -972,7 +995,7 @@ const I18N = {
     set_clonesHint:'Keep only the clones you grow — this list is what shows on the home.',
     ph_cloneName:'Clone name (e.g. Tekka, or your own)', ph_cloneNameEn:'Clone name (English)', ph_cloneNameZh:'Clone name (Chinese)', ph_cloneCode:'Code — optional',
     ph_cloneDaa:'Days to harvest — if known', set_addCloneBtn:'Add clone',
-    aria_close:'Close', aria_search:'Look up coordinates',
+    aria_close:'Close', aria_search:'Look up coordinates', conflict_title:'Check this observation',
     gdd_h3t:'How this app tracks the season', gdd_btn:'How the timeline & GDD model works',
     gdd_h1:'1. The calendar is the real clock', gdd_h2:'2. Where GDD fits — and where it doesn\'t',
     gdd_h3s:"3. This app's lowland calibration", gdd_h4:'4. Elevation correction',
@@ -1009,7 +1032,7 @@ const I18N = {
     set_clonesHint:'只保留你种植的品种 — 这个列表就是主页上显示的内容。',
     ph_cloneName:'品种名称（例如 竹脚，或你自己的）', ph_cloneNameEn:'品种名称（英文）', ph_cloneNameZh:'品种名称（中文）', ph_cloneCode:'编号 — 选填',
     ph_cloneDaa:'采收天数 — 如已知', set_addCloneBtn:'添加品种',
-    aria_close:'关闭', aria_search:'查找坐标',
+    aria_close:'关闭', aria_search:'查找坐标', conflict_title:'请检查这条记录',
     gdd_h3t:'本应用如何追踪季节', gdd_btn:'时间轴与积温(GDD)模型的工作原理',
     gdd_h1:'1. 日历才是真正的时钟', gdd_h2:'2. 积温(GDD)适用之处——以及不适用之处',
     gdd_h3s:'3. 本应用的低地校准', gdd_h4:'4. 海拔校正',
@@ -2263,10 +2286,16 @@ function observationConflict(farm, rec){
     if(!clash) continue;
     if(tree){
       // tree already carries an ID -> a genuine same-tree contradiction
-      return { tree, msg:`Tree ${tree} is already logged at ${SL(p.stage)} on ${fmtYmd(p.observed)}, which doesn\'t line up with ${SL(rec.stage)} on ${fmtYmd(rec.observed)} — one tree can\'t be at both stages in the same cycle. Check the date or stage, or use a different Tree ID if this is another tree.` };
+      return { tree, msg:LL(
+        `Tree ${tree} is already logged at ${SL(p.stage)} on ${fmtYmd(p.observed)}, which doesn\'t line up with ${SL(rec.stage)} on ${fmtYmd(rec.observed)} — one tree can\'t be at both stages in the same cycle. Check the date or stage, or use a different Tree ID if this is another tree.`,
+        `树 ${tree} 已记录在 ${SL(p.stage)}（${fmtYmd(p.observed)}），与 ${SL(rec.stage)}（${fmtYmd(rec.observed)}）对不上 —— 同一棵树在同一周期内不可能同时处于两个阶段。请检查日期或阶段，若是另一棵树请改用不同的树编号。`
+      ) };
     }
     // no ID yet -> gently ask the grower to name this tree so the two timelines stay separate
-    return { tree:'', msg:`This clone already has an observation at ${SL(p.stage)} on ${fmtYmd(p.observed)}, which doesn\'t line up with ${SL(rec.stage)} on ${fmtYmd(rec.observed)}. If these are two different trees, give this one a Tree ID above and tap Sync again — that keeps each tree on its own timeline.` };
+    return { tree:'', msg:LL(
+      `This clone already has an observation at ${SL(p.stage)} on ${fmtYmd(p.observed)}, which doesn\'t line up with ${SL(rec.stage)} on ${fmtYmd(rec.observed)}. If these are two different trees, give this one a Tree ID above and tap Sync again — that keeps each tree on its own timeline.`,
+      `此品种已有一条记录在 ${SL(p.stage)}（${fmtYmd(p.observed)}），与 ${SL(rec.stage)}（${fmtYmd(rec.observed)}）对不上。如果这是两棵不同的树，请在上方为这棵树填写树编号，再点一次「同步」—— 这样每棵树都各自独立记录。`
+    ) };
   }
   return null;
 }
@@ -2338,7 +2367,7 @@ function logStageInline(stageIdx, dateStr, treeId){
     // conflict (e.g. same tree at two stages) — restore prior anchor, surface the message
     state.anchorType=prevAnchor; state.anchorDate=prevDate; state.treeId=prevTree;
     renderAll();
-    if(res && res.msg) showToast(res.msg);
+    if(res && res.msg) showConflict(res.msg);
   }
 }
 function findRecord(id){ const farm=activeFarm(); return farm ? (farm.history||[]).find(r=>r.id===id) : null; }
@@ -2398,6 +2427,15 @@ function renderHistory(){
     const drift = driftMap[r.id] || '';
     const _at=new Date(r.at); const _curY=new Date().getFullYear();
     const when = _at.toLocaleDateString(locOf(state.lang), _at.getFullYear()===_curY ? {month:'short',day:'numeric'} : {month:'short',day:'numeric',year:'numeric'});
+    // One date formatter for the whole record card (baseline summary + schedule rows). If every
+    // date in this record falls in the same calendar year, show short dates (e.g. Jul 16 / 7月16日);
+    // keep the full year only when the season crosses into another year. This standardises the
+    // baseline line with the schedule list below it.
+    const _allYmd = [r.observed, r.anthesis, r.harvest].concat(Array.isArray(r.schedule)?r.schedule.map(st=>st.date):[]);
+    const _years = _allYmd.map(y=>{ const d=parseLocalDate(y); return d?d.getFullYear():null; }).filter(y=>y!=null);
+    const _crossesYear = _years.length ? (Math.min(..._years) !== Math.max(..._years)) : false;
+    const fmtSched = (ymd)=>{ const d=parseLocalDate(ymd); if(!d) return LL('TBD','待定');
+      return _crossesYear ? fmtYmd(ymd) : d.toLocaleDateString(locOf(state.lang),{month:'short',day:'numeric'}); };
     let schedHtml = '';
     if(Array.isArray(r.schedule) && r.schedule.length){
       const today=new Date(); today.setHours(0,0,0,0);
@@ -2407,14 +2445,6 @@ function renderHistory(){
       const anchorStageId = _isKnownId ? r.stage : (_stageKeyToId[r.stage] || r.stage);
       const isTarget = (anchorStageId==='harvest');
       let nextMarked=false;
-      // If every scheduled date falls in the same calendar year, drop the year for a
-      // cleaner display (so the Delete button doesn't get squeezed onto two lines).
-      // Keep the full year only when the season crosses into another year.
-      const _schedYears = r.schedule.map(st=>{ const d=parseLocalDate(st.date); return d?d.getFullYear():null; }).filter(y=>y!=null);
-      const _crossesYear = _schedYears.length ? (Math.min(..._schedYears) !== Math.max(..._schedYears)) : false;
-      const fmtSched = (ymd)=>{ const d=parseLocalDate(ymd); if(!d) return LL('TBD','待定');
-        return _crossesYear ? fmtYmd(ymd)
-          : d.toLocaleDateString(locOf(state.lang),{month:'short',day:'numeric'}); };
       const items = r.schedule.map((st,si)=>{
         const dt = parseLocalDate(st.date);
         const isAnchor = st.id ? (st.id===anchorStageId) : (si===0);
@@ -2437,8 +2467,8 @@ function renderHistory(){
     const tintStyle = tint ? ` style="background:${tint.bg};border-left:3px solid ${tint.bar}"` : '';
     return `<div class="hist-row"${tintStyle}>
       <div class="hist-top"><span class="hist-clone">${esc(recCloneName(r))}${r.tree?` <span class="hist-tree">${LL('Tree','树')} ${esc(r.tree)}</span>`:''}</span>${drift}</div>
-      <div class="hist-sub">${esc(stageTitleById[r.stage]||obsLabel(r.stage))}${LL(' observed ',' 观察于 ')}${esc(fmtYmd(r.observed))}</div>
-      <div class="hist-sub">${LL('Bloom (DAA 0)','盛花 (DAA 0)')}: ${esc(fmtYmd(r.anthesis))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtYmd(r.harvest)):LL('TBD','待定')}</div>
+      <div class="hist-sub">${esc(stageTitleById[r.stage]||obsLabel(r.stage))}${LL(' observed ',' 观察于 ')}${esc(fmtSched(r.observed))}</div>
+      <div class="hist-sub">${LL('Bloom (DAA 0)','盛花 (DAA 0)')}: ${esc(fmtSched(r.anthesis))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtSched(r.harvest)):LL('TBD','待定')}</div>
       ${schedHtml}
       <div class="hist-foot"><span class="hist-meta">${LL('logged','记录于')} ${esc(when)}</span><span class="hist-foot-btns"><button class="rec-btn wa" data-share-entry data-id="${r.id}">${ico('wa')} WhatsApp</button><button class="rec-btn" data-action="del" data-id="${r.id}">${ico('trash')} ${LL('Delete','删除')}</button></span></div>
     </div>`;
@@ -2470,7 +2500,7 @@ function renderHistory(){
 // full rail render and the lightweight selection update so the bracket logic lives in one place.
 function buildLeftBracket(stages, n, effIdx, budI, bloomI){
   if(effIdx==null || effIdx===stages.length-1) return '';
-  const baseIndex = effIdx>bloomI ? bloomI : budI;
+  const baseIndex = effIdx>=bloomI ? bloomI : budI;
   const aOff = stages[effIdx]?.dayOffset;
   const lTop = (Math.min(baseIndex,effIdx)/n)*100;
   const lH = (Math.abs(effIdx-baseIndex)/n)*100;
@@ -2505,16 +2535,95 @@ function updateLeftBracket(){
   if(html){ const spine=rail.querySelector('.brackets-left'); if(spine) spine.insertAdjacentHTML('afterend', html); else rail.insertAdjacentHTML('afterbegin', html); }
 }
 function railTitleHTML(title){
-  // Escape first (titles are plain text). Then, for the two "… — Drop Risk" stages,
-  // wrap the dash+suffix so CSS can drop the dash and break to a new line on mobile,
-  // while desktop keeps it inline. Delimiter is NBSP + em-dash + space ("\u00A0\u2014 ").
+  // Escape first (titles are plain text). Then apply display-only wrapping for the rail node:
+  //  (1) "… — Drop Risk" stages: wrap the dash+suffix so mobile drops the dash and puts the
+  //      risk phrase on its own line, while desktop keeps it inline.
+  //  (2) A trailing CJK full-width parenthetical "（…）" (e.g. 采后恢复期（第一波抽梢）):
+  //      wrap it so it breaks to its own line AS A UNIT on mobile rather than splitting
+  //      mid-phrase ("第一波 / 抽梢"). Desktop keeps it inline.
   const esc = (typeof escH==="function") ? escH : (x=>String(x));
   const SEP = "\u00A0\u2014 ";
   const i = title.indexOf(SEP);
-  if(i<0) return '<span class="nn-text">' + esc(title) + '</span>';
-  const head = esc(title.slice(0, i));
-  const tail = esc(title.slice(i + SEP.length));
-  return '<span class="nn-text">' + head + '<span class="nn-risk"><span class="nn-dash"> \u2014 </span>' + tail + '</span></span>';
+  if(i>=0){
+    const head = esc(title.slice(0, i));
+    const tail = esc(title.slice(i + SEP.length));
+    return '<span class="nn-text">' + head + '<span class="nn-risk"><span class="nn-dash"> \u2014 </span>' + tail + '</span></span>';
+  }
+  // Trailing parenthetical — CJK full-width "（…）" (采后恢复期（第一波抽梢）) or ASCII " (…)"
+  // (Post-Harvest Recovery (Gen 1 Flush)). Wrap it so it breaks to its own line as a unit on
+  // mobile instead of splitting mid-phrase; desktop keeps it inline.
+  let m = title.match(/^(.*?)(（[^（）]*）)\s*$/);          // CJK parenthetical (no space before)
+  let sep = '';
+  if(!m){ const mm = title.match(/^(.*?\S)\s+(\([^()]*\))\s*$/); if(mm){ m = mm; sep = ' '; } } // ASCII " (...)"
+  if(m){
+    // `sep` is a normal space kept OUTSIDE the inline-block paren so desktop spacing is correct;
+    // on mobile .nn-paren becomes its own line, so the trailing space is harmless.
+    return '<span class="nn-text">' + esc(m[1]) + sep + '<span class="nn-paren">' + esc(m[2]) + '</span></span>';
+  }
+  return '<span class="nn-text">' + esc(title) + '</span>';
+}
+// Phase boundaries derived from stage ids (not literal indices) so they stay correct no matter
+// how many micro-stages are inserted between anchors. `on` marks the phase containing the
+// currently-selected stage. Shared by the full render and the lightweight selection update.
+// Right-side day-gap legs between consecutive DATE-BEARING (spine) stages, skipping folk
+// stages. `on` marks the single leg whose span contains the active stage (so the highlight
+// follows selection). Shared by the full render and the lightweight selection update.
+function computeRightLegs(stages, n, ai){
+  const has = ai!=null;
+  const dated = stages.map((s,idx)=>({idx, off:s.dayOffset})).filter(x=>x.off!=null);
+  const legs = [];
+  for(let k=0;k<dated.length-1;k++){
+    const cur=dated[k], nxt=dated[k+1];
+    const gap=nxt.off-cur.off;
+    if(gap<=0) continue;
+    const isLast = (k===dated.length-2);
+    // active stage falls in this leg: [cur, nxt) — the final leg also includes its end node.
+    const on = has && ai>=cur.idx && (isLast ? ai<=nxt.idx : ai<nxt.idx);
+    legs.push({gap, top:(cur.idx/n)*100, h:((nxt.idx-cur.idx)/n)*100, on});
+  }
+  return legs;
+}
+// Lightweight refresh of just the right-leg .on highlight on selection (geometry unchanged).
+function updateRightLegs(){
+  const rail=document.getElementById('rail'); if(!rail) return;
+  const wrap=rail.querySelector('.brackets-right'); if(!wrap) return;
+  const stages=getStagesNow();
+  const legs=computeRightLegs(stages, stages.length-1, state.activeIndex);
+  const els=wrap.querySelectorAll('.r-leg');
+  els.forEach((el,i)=>{ if(legs[i]) el.classList.toggle('on', !!legs[i].on); });
+}
+function computePhases(stages, ai){
+  const has = ai!=null;
+  const _ix = id => { const i = stages.findIndex(z=>z.id===id); return i>=0?i:null; };
+  const iPre = _ix('pre_flower') ?? 0;
+  const iBud = _ix('bud_emergence') ?? 1;
+  const iBloom = _ix('flowering') ?? 3;
+  // Recovery is strictly post-harvest (采后): it covers only the Post-Harvest Recovery stage.
+  // Harvest & Fruit Drop is the close of Fruiting — the fruit is still on the tree until it drops.
+  const iHarvest = _ix('harvest') ?? (stages.length-2);
+  const iRecovery = _ix('recovery') ?? (stages.length-1);
+  const iEnd = stages.length-1;
+  // `s`/`e` are the bracket's visual span (node indices); `on` is which phase the active stage
+  // sits in. Fruiting's span ENDS at the Harvest node (so it doesn't overshoot into Recovery),
+  // but its highlight still covers Harvest (ai<iRecovery), since Harvest closes Fruiting.
+  return [
+    {s:iPre,     e:iBud,      label:LL('Induction','诱导期'), on:has&&ai>=iPre&&ai<iBud},
+    {s:iBud,     e:iBloom,    label:LL('Bud Dev','花芽发育'), on:has&&ai>=iBud&&ai<iBloom},
+    {s:iBloom,   e:iHarvest,  label:LL('Fruiting','结果期'), on:has&&ai>=iBloom&&ai<iRecovery},
+    // Recovery's visual span starts at Harvest (where Fruiting ends) so the two brackets connect
+    // with no gap; its highlight still only fires on the Post-Harvest stage (ai>=iRecovery).
+    {s:iHarvest, e:iEnd,      label:LL('Recovery','恢复期'), on:has&&ai>=iRecovery},
+  ];
+}
+// Lightweight refresh of just the phase-bracket .on highlight (geometry is unchanged on
+// selection, only which phase is active changes). Keeps the highlight in sync when a node is
+// tapped without a full rail rebuild — otherwise the highlight sticks on a past phase.
+function updatePhaseBrackets(){
+  const rail=document.getElementById('rail'); if(!rail) return;
+  const wrap=rail.querySelector('.brackets-left'); if(!wrap) return;
+  const phases=computePhases(getStagesNow(), state.activeIndex);
+  const els=wrap.querySelectorAll('.bracket');
+  els.forEach((el,i)=>{ if(phases[i]) el.classList.toggle('on', !!phases[i].on); });
 }
 function renderRail(){
   const stages = getStagesNow();
@@ -2529,34 +2638,28 @@ function renderRail(){
 
   // phase brackets (left) — boundaries derived from stage ids, not literal indices,
   // so they stay correct no matter how many micro-stages are inserted between anchors.
-  const _ix = id => { const i = stages.findIndex(z=>z.id===id); return i>=0?i:null; };
-  const iPre = _ix('pre_flower') ?? 0;
-  const iBud = _ix('bud_emergence') ?? 1;
-  const iBloom = _ix('flowering') ?? 3;
-  const iMat = _ix('maturation') ?? (stages.length-2);
-  const iEnd = stages.length-1;
-  const phases = [
-    {s:iPre,  e:iBud, label:LL('Induction','诱导期'), on:has&&ai>=iPre&&ai<iBud},
-    {s:iBud,  e:iBloom,label:LL('Bud Dev','花芽发育'), on:has&&ai>=iBud&&ai<iBloom},
-    {s:iBloom,e:iMat,  label:LL('Fruiting','结果期'), on:has&&ai>=iBloom&&ai<iMat},
-    {s:iMat,  e:iEnd,  label:LL('Recovery','恢复期'), on:has&&ai>=iMat},
-  ];
+  const phases = computePhases(stages, ai);
   const bracketsLeft = phases.map(p=>{
-    const top=(p.s/n)*100, h=((p.e-p.s)/n)*100;
+    let top=(p.s/n)*100, h=((p.e-p.s)/n)*100;
+    // A single-stage phase (e.g. Recovery = Post-Harvest only) has zero span; give it a
+    // minimum visible height of one stage-step, centred on its node, so the bracket still
+    // reads and its label has room.
+    if(h < (1/n)*100*0.5){
+      const minH=(1/n)*100;            // one stage-step
+      top=Math.max(0, top-minH/2);
+      h=minH;
+    }
     return `<div class="bracket ${p.on?'on':''}" style="top:${top}%;height:${h}%"><span>${p.label}</span></div>`;
   }).join('');
 
-  // right-side leg brackets — days between each consecutive pair of stages
-  const rightBracket = stages.map((s,idx)=>{
-    if(idx===stages.length-1) return '';
-    const a=s.dayOffset, b=stages[idx+1]?.dayOffset;
-    if(a==null||b==null) return '';
-    const gap=b-a;
-    if(gap<=0) return '';
-    const top=(idx/n)*100, h=(1/n)*100;
-    const on = has && (ai===idx || ai===idx+1);
-    return `<div class="r-leg ${on?'on':''}" style="top:${top}%;height:${h}%"><span>${gap}${LL('d','天')}</span></div>`;
-  }).join('');
+  // right-side leg brackets — days between consecutive DATE-BEARING (spine) stages.
+  // Folk size-stages have no published day-count, so a bracket spans from one dated stage to
+  // the next dated stage, skipping over any folk stages in between (they're observed somewhere
+  // inside that window). This keeps the day-gaps visible all the way through fruiting instead
+  // of vanishing the moment a folk stage breaks adjacency.
+  const rightBracket = computeRightLegs(stages, n, ai).map(L=>
+    `<div class="r-leg ${L.on?'on':''}" style="top:${L.top}%;height:${L.h}%"><span>${L.gap}${LL('d','天')}</span></div>`
+  ).join('');
 
   const fillH = has ? (ai/n)*100 : 0;
 
@@ -2574,7 +2677,7 @@ function renderRail(){
     const iconSvg = ico(s.icon);
     const isSub = (s.dayOffset==null && s.id!=='recovery');   // folk micro-stage: no published day-count
     const leftTag = (s.id==='pre_flower') ? s.elapsedLabel
-                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('← Loop back to Dry Stress','← 循环回到<br>旱胁迫')}</span>`
+                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('← Loop back to<br>Dry Stress','← 循环回到<br>旱胁迫')}</span>`
                   : (s.id==='flowering') ? '<span class="daa-zero">0 DAA</span>'
                   : '';
     const dateLine = isSub
@@ -2647,6 +2750,8 @@ function renderRail(){
       })();
       renderDetail(); renderScreen(); decorateIcons();
       updateLeftBracket();
+      updatePhaseBrackets();
+      updateRightLegs();
     };
 
     // TAP / CLICK the DOT on the spine = make this stage active. The dot is the one
@@ -2930,7 +3035,6 @@ function renderDetail(){
 
 // DETAIL — a dedicated full screen for one view of the chosen stage.
 function renderScreen(){
-  try{ window.__view=state.view; }catch(_){}
   const screen=document.getElementById('screen');
   const rec=document.getElementById('recordScreen');
   if(rec) rec.hidden = (state.view!=='record');
@@ -3081,6 +3185,9 @@ function renderAll(){ renderControls(); renderRail(); renderToday(); renderDetai
    MODAL
    ===================================================================== */
 function openModal(id){ const m=document.getElementById(id); if(m) m.classList.add('open'); }
+// Persistent, dismissible dialog for observation conflicts (a toast would vanish before a
+// grower can read this longer message). Body text is pre-localised by observationConflict().
+function showConflict(msg){ const el=document.getElementById('conflictBody'); if(el) el.textContent=msg; openModal('conflictModal'); }
 function closeModals(){ document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open')); }
 
 /* =====================================================================
@@ -3288,47 +3395,6 @@ function initPWA(){
 wire();
 initPWA();
 renderAll();
-
-/* ---------- TEMP diagnostic HUD (v34d) — only active when URL ends with #debug ----------
-   Append #debug to the live URL, tap Record ONCE, screenshot the panel. Remove next build. */
-(function debugHUD(){
-  try{
-    if(!/debug/i.test(location.hash)) return;
-    const box=document.createElement('div');
-    box.style.cssText='position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;max-height:42vh;overflow:auto;'
-      +'background:rgba(0,0,0,.88);color:#0f0;font:11px/1.35 ui-monospace,Menlo,monospace;'
-      +'padding:8px 10px;border-radius:10px;white-space:pre-wrap;box-shadow:0 4px 20px rgba(0,0,0,.5);';
-    const head=document.createElement('div');
-    head.style.cssText='color:#fff;font-weight:700;margin-bottom:4px;display:flex;justify-content:space-between;';
-    head.innerHTML='<span>TAP DIAGNOSTIC — tap Record once</span>';
-    const clr=document.createElement('button');
-    clr.textContent='clear';
-    clr.style.cssText='background:#333;color:#fff;border:0;border-radius:6px;padding:2px 8px;font:11px monospace;';
-    head.appendChild(clr);
-    const log=document.createElement('div');
-    box.appendChild(head); box.appendChild(log);
-    document.body.appendChild(box);
-    let n=0;
-    const recScreen=()=>{ const r=document.getElementById('recordScreen'); return r? (r.hidden?'hidden':'SHOWN') : 'n/a'; };
-    const line=(t)=>{ n++; const a=document.createElement('div'); a.textContent=String(n).padStart(2,'0')+'  '+t; log.appendChild(a); box.scrollTop=box.scrollHeight; };
-    clr.addEventListener('click',()=>{ log.innerHTML=''; n=0; });
-    line('ready. active el='+(document.activeElement&&document.activeElement.id||document.activeElement&&document.activeElement.tagName||'none'));
-    ['pointerdown','touchstart','touchend','click','focusin','focusout','scroll'].forEach(type=>{
-      document.addEventListener(type,(e)=>{
-        const onRec = e.target && e.target.closest && e.target.closest('[data-record]');
-        const tag = e.target ? (e.target.id||e.target.tagName) : '?';
-        if(type==='scroll'){ return; } // skip noisy scroll
-        // only log taps that touch the record area, plus focus changes (keyboard dismissal)
-        if(onRec || type==='focusin' || type==='focusout'){
-          const act = (document.activeElement&&(document.activeElement.id||document.activeElement.tagName))||'none';
-          line(type+'  target='+tag+(onRec?'  [REC]':'')+'  view='+(window.__view||'?')+'  recScreen='+recScreen()+'  active='+act);
-        }
-      },true);
-    });
-    line('hint: if you see touchstart+touchend but NO click on tap-1, it is a tap-cancel/scroll issue.');
-    line('hint: if focusout fires on tap-1 and click only on tap-2, the keyboard/blur is eating tap-1.');
-  }catch(_){}
-})();
 </script>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
