@@ -177,11 +177,12 @@
     font-size:.66rem;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:var(--ink-faint);
     transition:.25s;}
   .node.active .node-elapsed{color:var(--accent);transform:scale(1.06);transform-origin:right;}
-  /* The first node (pre_flower) carries the "Dry Stress / 旱胁迫" label, which otherwise
-     sits right at the top where the Induction + cumulative brackets begin. Nudge it down
-     so it clears the bracket tops. */
-  .node.trigger .node-elapsed{transform:translateY(1.6rem);}
-  .node.trigger.active .node-elapsed{transform:translateY(1.6rem) scale(1.06);}
+  /* The first node (pre_flower) carries the "Dry Stress / 旱胁迫" label. Left at the node
+     position it overlaps the top horizontal arm of the Induction bracket. Drop it well into
+     the open middle band of that bracket (around the Red Eye / -21d level) so it is clear of
+     both the bracket arm and the vertical phase-label text. */
+  .node.trigger .node-elapsed{transform:translate(1.1rem,3.6rem);}
+  .node.trigger.active .node-elapsed{transform:translate(1.1rem,3.6rem) scale(1.06);}
   .node-dot{position:absolute;left:34%;transform:translateX(-50%);width:42px;height:42px;border-radius:50%;
     background:var(--surface);border:3px solid var(--line);color:var(--ink-faint);
     display:grid;place-items:center;transition:.15s;box-shadow:var(--shadow);z-index:2;cursor:pointer;pointer-events:auto;}
