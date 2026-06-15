@@ -188,6 +188,8 @@
   .node-logpanel{position:absolute;left:-2.1rem;right:.5rem;top:calc(50% + 14px);z-index:40;
      background:#fff;border:1.5px solid var(--accent-line);border-radius:.9rem;
      box-shadow:0 10px 28px rgba(8,60,40,.16);padding:3.6rem .7rem .7rem;display:none;}
+  /* on mobile, stretch the card so it uses much more of the screen width */
+  @media(max-width:479px){ .node-logpanel{left:-9.5rem;right:-1.6rem;} }
   .node.logging{z-index:50;}
   .node.logging .node-logpanel{display:block;}
   /* close (✕) pinned to the card's top-right corner */
@@ -209,6 +211,7 @@
   .node.logging .node-label{background:var(--bg);border-radius:.6rem;box-shadow:0 0 0 6px var(--bg);}
   .gdd-pip{display:inline-flex;align-items:center;gap:.2rem;background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue-line);
     border-radius:6px;padding:.1rem .35rem;font-size:.55rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;}
+  @media(max-width:479px){ .gdd-pip{display:none;} }   /* hide on mobile — too crowded next to dates */
 
   /* phase brackets */
   .brackets-left{position:absolute;top:0;bottom:0;left:-2.5rem;width:1rem;}
@@ -940,7 +943,7 @@ const I18N = {
     appTitle:'AgriPro Timeline',
     trackTitle:'Tracking Progression', rec_title:'Calibration Log', rec_badge:'Record', share_title:'Send to WhatsApp',
     logHintTitle:'Log a stage date', logHint:'On the timeline above, tap a stage\u2019s circle to select it, then swipe that row left (on a phone) or right-click the same circle (on desktop) to record the date you saw it. Spine stages set your schedule; size stages just save the date.',
-    needFarm:'Add a farm first, then log a stage date.',
+    needFarm:'Open Settings (⚙ top-right) to add a farm first, then log a stage date.',
     rec_sub:"Each time you Sync an observation on the home screen it's saved here. Every entry re-zeros the projection to what you actually saw in the field and lists the schedule from that point through to harvest.",
     set_farmsHead:'Microclimate Sync — My Farms', set_savedFarms:'Saved farms',
     ph_farmEn:'Farm name (English) — optional', ph_farmZh:'Farm name (Chinese) — optional',
@@ -977,7 +980,7 @@ const I18N = {
     appTitle:'榴莲丰收时间轴',
     trackTitle:'进度追踪', rec_title:'校准记录', rec_badge:'记录', share_title:'发送到 WhatsApp',
     logHintTitle:'记录阶段日期', logHint:'在上方时间轴上，先点按某个阶段的圆点将其选中，然后将该行向左滑动（手机）或右键点击同一圆点（桌面）即可记录你看到它的日期。主干阶段会设定你的进度表；大小阶段仅保存日期。',
-    needFarm:'请先添加农场，再记录阶段日期。',
+    needFarm:'请先到「设置」（右上角 ⚙）添加农场，再记录阶段日期。',
     rec_sub:'每次你在主页同步一次田间观察，记录都会保存在这里。每一条记录都会把预测重新归零到你在田间实际看到的物候，并从那时起列出直到采收的时间表。',
     set_farmsHead:'微气候同步 — 我的农场', set_savedFarms:'已保存的农场',
     ph_farmEn:'农场名称（英文）— 选填', ph_farmZh:'农场名称（中文）— 选填',
