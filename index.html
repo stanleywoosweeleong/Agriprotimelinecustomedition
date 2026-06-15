@@ -2379,7 +2379,8 @@ function renderHistory(){
   const stageTitleById = {}; try{ getStagesNow().forEach(z=>{ stageTitleById[z.id]=z.title; }); }catch(e){}
   const rows = display.map(r=>{
     const drift = driftMap[r.id] || '';
-    const when = new Date(r.at).toLocaleDateString(state.lang==='zh'?'zh-CN':'en-US',{month:'short',day:'numeric',year:'numeric'});
+    const _at=new Date(r.at); const _curY=new Date().getFullYear();
+    const when = _at.toLocaleDateString(locOf(state.lang), _at.getFullYear()===_curY ? {month:'short',day:'numeric'} : {month:'short',day:'numeric',year:'numeric'});
     let schedHtml = '';
     if(Array.isArray(r.schedule) && r.schedule.length){
       const today=new Date(); today.setHours(0,0,0,0);
@@ -2416,7 +2417,7 @@ function renderHistory(){
     const tintStyle = tint ? ` style="background:${tint.bg};border-left:3px solid ${tint.bar}"` : '';
     return `<div class="hist-row"${tintStyle}>
       <div class="hist-top"><span class="hist-clone">${esc(recCloneName(r))}${r.tree?` <span class="hist-tree">${LL('Tree','树')} ${esc(r.tree)}</span>`:''}</span>${drift}</div>
-      <div class="hist-sub">${esc(obsLabel(r.stage))}${LL(' observed ',' 观察于 ')}${esc(fmtYmd(r.observed))}</div>
+      <div class="hist-sub">${esc(stageTitleById[r.stage]||obsLabel(r.stage))}${LL(' observed ',' 观察于 ')}${esc(fmtYmd(r.observed))}</div>
       <div class="hist-sub">${LL('Bloom (DAA 0)','盛花 (DAA 0)')}: ${esc(fmtYmd(r.anthesis))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtYmd(r.harvest)):LL('TBD','待定')}</div>
       ${schedHtml}
       <div class="hist-foot"><span class="hist-meta">${LL('logged','记录于')} ${esc(when)}</span><span class="hist-foot-btns"><button class="rec-btn wa" data-share-entry data-id="${r.id}">${ico('wa')} WhatsApp</button><button class="rec-btn" data-action="del" data-id="${r.id}">${ico('trash')} ${LL('Delete','删除')}</button></span></div>
@@ -2429,7 +2430,7 @@ function renderHistory(){
       return `<div class="hist-row deleted">
         <div class="hist-info">
           <div class="hist-clone">${esc(recCloneName(r))}</div>
-          <div class="hist-sub">${esc(obsLabel(r.stage))} &middot; ${esc(fmtYmd(r.observed))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtYmd(r.harvest)):LL('TBD','待定')}</div>
+          <div class="hist-sub">${esc(stageTitleById[r.stage]||obsLabel(r.stage))} &middot; ${esc(fmtYmd(r.observed))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtYmd(r.harvest)):LL('TBD','待定')}</div>
         </div>
         <div class="rec-actions">
           <button class="rec-btn restore" data-action="restore" data-id="${r.id}">${ico('undo')} ${LL('Restore','恢复')}</button>
