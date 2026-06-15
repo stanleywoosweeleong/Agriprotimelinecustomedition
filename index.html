@@ -194,14 +194,14 @@
   .node-logpanel .nl-cancel:hover{border-color:var(--ink-faint);color:var(--ink);}
   .node-logpanel .nl-cancel svg{width:14px;height:14px;}
   /* full-width native date input on its own row — iOS renders its own reliable control */
-  .node-logpanel .nl-date-input{display:block;width:100%;box-sizing:border-box;height:2.7rem;line-height:2.7rem;border:1.5px solid var(--accent-line);border-radius:.7rem;background:var(--accent-soft);color:var(--accent);font-size:.95rem;font-weight:800;padding:0 .7rem;font-family:inherit;text-align:left;margin-top:.4rem;}
+  .node-logpanel .nl-date-input{display:block;width:100%;box-sizing:border-box;height:2.7rem;line-height:2.7rem;border:1.5px solid var(--accent-line);border-radius:.7rem;background:#fff;color:var(--ink-soft);font-size:1rem;font-weight:700;padding:0 .7rem;font-family:inherit;text-align:left;margin-top:.4rem;}
   .node-logpanel .nl-date-input::-webkit-date-and-time-value{text-align:left;margin:0;line-height:2.7rem;}
   .node-logpanel .nl-date-input::-webkit-calendar-picker-indicator{opacity:.6;}
   /* Tree ID on its own full-width row */
-  .node-logpanel .nl-tree{display:block;width:100%;box-sizing:border-box;height:2.6rem;border:1.5px solid var(--line);border-radius:.7rem;background:#fff;font-size:.88rem;font-weight:700;color:var(--ink);padding:0 .7rem;margin-top:.55rem;}
-  .node-logpanel .nl-tree::placeholder{color:var(--ink-faint);font-weight:600;}
+  .node-logpanel .nl-tree{display:block;width:100%;box-sizing:border-box;height:2.6rem;border:1.5px solid var(--line);border-radius:.7rem;background:#fff;font-size:1rem;font-weight:700;color:var(--ink-soft);padding:0 .7rem;margin-top:.55rem;}
+  .node-logpanel .nl-tree::placeholder{color:var(--ink-soft);font-weight:700;}
   /* Save on its own full-width row */
-  .node-logpanel .nl-ok{display:flex;width:100%;box-sizing:border-box;height:2.7rem;margin-top:.55rem;border-radius:.7rem;border:1.5px solid var(--accent);background:var(--accent);color:#fff;align-items:center;justify-content:center;gap:.4rem;font-size:.92rem;font-weight:800;cursor:pointer;transition:.15s;font-family:inherit;}
+  .node-logpanel .nl-ok{display:flex;width:100%;box-sizing:border-box;height:2.7rem;margin-top:1rem;border-radius:.7rem;border:1.5px solid var(--accent);background:var(--accent);color:#fff;align-items:center;justify-content:center;gap:.4rem;font-size:.92rem;font-weight:800;cursor:pointer;transition:.15s;font-family:inherit;}
   .node-logpanel .nl-ok:disabled{opacity:.4;cursor:default;}
   .node-logpanel .nl-ok svg{width:17px;height:17px;}
   .node.logging{z-index:5;}
@@ -2627,8 +2627,9 @@ function renderRail(){
       slide.addEventListener('touchend', end);
     }
 
-    // Date chosen -> enable ✓ (the visible native input shows the chosen date itself).
+    // Date chosen -> enable ✓ and remember the grower actively set it.
     if(dateInput) dateInput.addEventListener('change',()=>{
+      dateTouched = true;
       if(okBtn) okBtn.disabled=!dateInput.value;
     });
     // ✓ commit -> log via the shared record path, then close + re-render.
