@@ -178,24 +178,32 @@
   .node-cal{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--accent-bright);display:flex;align-items:center;gap:.3rem;margin-top:.2rem;}
   .node-rel{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-faint);margin-top:.2rem;}
 
-  /* ---- swipe-to-log: inline date + Tree ID picker that slides into a node ---- */
-  .node-label{overflow:hidden;}                                  /* clip the sliding tray */
-  .node-slide{display:flex;align-items:center;transition:transform .28s cubic-bezier(.4,0,.2,1);touch-action:pan-y;}
-  .node.logging .node-slide{transform:translateX(calc(-1 * var(--log-w,21rem)));will-change:transform;}
-  .node-face{flex:0 0 100%;min-width:0;}                          /* the normal name + date */
-  .node-log{flex:0 0 var(--log-w,21rem);display:flex;align-items:center;gap:.35rem;padding-left:.5rem;pointer-events:none;}
-  .node.logging .node-log{pointer-events:auto;}
-  /* visible native date input — iOS renders its own reliable date control */
-  .node-log .nl-date-input{flex:1 1 auto;min-width:0;height:2.3rem;border:1.5px solid var(--accent-line);border-radius:.6rem;background:var(--accent-soft);color:var(--accent);font-size:.78rem;font-weight:800;padding:0 .5rem;-webkit-appearance:none;appearance:none;font-family:inherit;}
-  .node-log .nl-date-input::-webkit-date-and-time-value{text-align:left;}
-  .node-log .nl-tree{flex:0 0 4.6rem;height:2.3rem;border:1.5px solid var(--line);border-radius:.6rem;background:#fff;font-size:.72rem;font-weight:800;color:var(--ink);text-align:center;padding:0 .25rem;min-width:0;}
-  .node-log .nl-tree::placeholder{color:var(--ink-faint);font-weight:700;}
-  .node-log .nl-ok{flex:0 0 2.3rem;height:2.3rem;border-radius:.6rem;border:1.5px solid var(--accent);background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;transition:.15s;}
-  .node-log .nl-ok:disabled{opacity:.4;cursor:default;}
-  .node-log .nl-ok svg{width:16px;height:16px;}
-  .node-log .nl-cancel{flex:0 0 1.9rem;height:2.3rem;border-radius:.6rem;border:1.5px solid var(--line);background:#fff;color:var(--ink-faint);display:grid;place-items:center;cursor:pointer;transition:.15s;}
-  .node-log .nl-cancel:hover{border-color:var(--ink-faint);color:var(--ink);}
-  .node-log .nl-cancel svg{width:14px;height:14px;}
+  /* ---- tap-to-log: full-width date + Tree ID card that floats under a node ---- */
+  .node-label{overflow:visible;}
+  .node-slide{display:flex;align-items:center;}
+  .node-face{flex:1 1 100%;min-width:0;}
+  /* the log card floats as an overlay anchored just below the node name, full width,
+     above sibling nodes (which are absolutely positioned and don't reflow) */
+  .node-logpanel{position:absolute;left:-2.1rem;right:.5rem;top:calc(50% + 14px);z-index:40;
+     background:#fff;border:1.5px solid var(--accent-line);border-radius:.9rem;
+     box-shadow:0 10px 28px rgba(8,60,40,.16);padding:.9rem .7rem .7rem;display:none;}
+  .node.logging{z-index:50;}
+  .node.logging .node-logpanel{display:block;}
+  /* close (✕) pinned to the card's top-right corner */
+  .node-logpanel .nl-cancel{position:absolute;top:.45rem;right:.45rem;width:1.9rem;height:1.9rem;border-radius:.55rem;border:1.5px solid var(--line);background:#fff;color:var(--ink-faint);display:grid;place-items:center;cursor:pointer;transition:.15s;z-index:2;}
+  .node-logpanel .nl-cancel:hover{border-color:var(--ink-faint);color:var(--ink);}
+  .node-logpanel .nl-cancel svg{width:14px;height:14px;}
+  /* full-width native date input on its own row — iOS renders its own reliable control */
+  .node-logpanel .nl-date-input{display:block;width:100%;box-sizing:border-box;height:2.7rem;line-height:2.7rem;border:1.5px solid var(--accent-line);border-radius:.7rem;background:var(--accent-soft);color:var(--accent);font-size:.95rem;font-weight:800;padding:0 .7rem;font-family:inherit;text-align:left;margin-top:.4rem;}
+  .node-logpanel .nl-date-input::-webkit-date-and-time-value{text-align:left;margin:0;line-height:2.7rem;}
+  .node-logpanel .nl-date-input::-webkit-calendar-picker-indicator{opacity:.6;}
+  /* Tree ID on its own full-width row */
+  .node-logpanel .nl-tree{display:block;width:100%;box-sizing:border-box;height:2.6rem;border:1.5px solid var(--line);border-radius:.7rem;background:#fff;font-size:.88rem;font-weight:700;color:var(--ink);padding:0 .7rem;margin-top:.55rem;}
+  .node-logpanel .nl-tree::placeholder{color:var(--ink-faint);font-weight:600;}
+  /* Save on its own full-width row */
+  .node-logpanel .nl-ok{display:flex;width:100%;box-sizing:border-box;height:2.7rem;margin-top:.55rem;border-radius:.7rem;border:1.5px solid var(--accent);background:var(--accent);color:#fff;align-items:center;justify-content:center;gap:.4rem;font-size:.92rem;font-weight:800;cursor:pointer;transition:.15s;font-family:inherit;}
+  .node-logpanel .nl-ok:disabled{opacity:.4;cursor:default;}
+  .node-logpanel .nl-ok svg{width:17px;height:17px;}
   .node.logging{z-index:5;}
   .node.logging .node-label{background:var(--bg);border-radius:.6rem;box-shadow:0 0 0 6px var(--bg);}
   .gdd-pip{display:inline-flex;align-items:center;gap:.2rem;background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue-line);
@@ -2524,11 +2532,11 @@ function renderRail(){
     const dateLine = isSub
       ? `<div class="node-cal">${ico('eye')} ${LL('Log when you see it','看到时记录')}</div>`
       : `<div class="node-date ${d.date?'':'tbd'}">${ico('calendar')} ${fmtDate(d.date)}</div>`;
-    const logTray = `<div class="node-log" aria-hidden="true">
+    const logTray = `<div class="node-logpanel" aria-hidden="true">
         <button type="button" class="nl-cancel" data-logcancel="${idx}" aria-label="${LL('Cancel','取消')}" title="${LL('Cancel','取消')}">${ico('x')}</button>
         <input type="date" class="nl-date-input" data-logdate="${idx}" aria-label="${LL('Date you saw this stage','你看到此阶段的日期')}">
-        <input type="text" class="nl-tree" data-logtree="${idx}" maxlength="12" placeholder="${LL('Tree','树号')}" aria-label="${LL('Tree ID, optional','树编号，可选')}">
-        <button type="button" class="nl-ok" data-logok="${idx}" disabled aria-label="${LL('Save log','保存记录')}">${ico('check')}</button>
+        <input type="text" class="nl-tree" data-logtree="${idx}" maxlength="12" placeholder="${LL('Tree ID (optional)','树号（可选）')}" aria-label="${LL('Tree ID, optional','树编号，可选')}">
+        <button type="button" class="nl-ok" data-logok="${idx}" disabled aria-label="${LL('Save log','保存记录')}">${ico('check')} <span>${LL('Save','保存')}</span></button>
       </div>`;
     return `<div class="node ${active?'active':''}${s.id==='pre_flower'?' trigger':''}${isSub?' sub':''}" data-idx="${idx}" style="top:${top}%">
       <div class="node-elapsed">${leftTag}</div>
@@ -2539,8 +2547,8 @@ function renderRail(){
             <div class="node-name">${s.title}${d.synced?` <span class="gdd-pip">${ico('cpu')} GDD</span>`:''}</div>
             ${dateLine}
           </div>
-          ${logTray}
         </div>
+        ${logTray}
       </div>
     </div>`;
   }).join('');
@@ -2567,7 +2575,12 @@ function renderRail(){
     const okBtn=el.querySelector(`[data-logok="${idx}"]`);
 
     const isActive=()=> state.activeIndex===idx;
-    const openLog=()=>{ if(!isActive()) return; rail.querySelectorAll('.node.logging').forEach(o=>{ if(o!==el) o.classList.remove('logging'); }); el.classList.add('logging'); };
+    const openLog=()=>{ if(!isActive()) return; rail.querySelectorAll('.node.logging').forEach(o=>{ if(o!==el) o.classList.remove('logging'); }); el.classList.add('logging');
+      // Pre-fill today's date so the field is never blank on iOS (where an empty
+      // type=date renders almost invisible) and the ✓ is immediately usable. The
+      // grower can still tap the field to change it.
+      if(dateInput && !dateInput.value){ const t=new Date(); const z=n=>String(n).padStart(2,'0'); dateInput.value=`${t.getFullYear()}-${z(t.getMonth()+1)}-${z(t.getDate())}`; if(okBtn) okBtn.disabled=false; }
+    };
     const closeLog=()=>{ el.classList.remove('logging'); };
     const selectThis=()=>{
       const wasOpenHere = el.classList.contains('logging');
@@ -3038,7 +3051,12 @@ function wire(){
     e.stopPropagation();
     const rail=document.getElementById('rail');
     if(node.classList.contains('logging')){ node.classList.remove('logging'); }
-    else { if(rail) rail.querySelectorAll('.node.logging').forEach(o=>o.classList.remove('logging')); node.classList.add('logging'); }
+    else {
+      if(rail) rail.querySelectorAll('.node.logging').forEach(o=>o.classList.remove('logging'));
+      node.classList.add('logging');
+      const di=node.querySelector('.nl-date-input'), ok=node.querySelector('.nl-ok');
+      if(di && !di.value){ const t=new Date(); const z=n=>String(n).padStart(2,'0'); di.value=`${t.getFullYear()}-${z(t.getMonth()+1)}-${z(t.getDate())}`; if(ok) ok.disabled=false; }
+    }
   }, true);
   const _langBtn=document.getElementById('langBtn'); if(_langBtn) _langBtn.addEventListener('click',()=>setLang(state.lang==='zh'?'en':'zh'));
   const homeTop=document.getElementById('homeTop');
