@@ -171,6 +171,12 @@
      RECOVERY label; text wraps to short lines within the band. */
   .node-elapsed:has(.loop-tag){left:1.0rem;right:auto;width:calc(34% - 3.4rem);text-align:right;}
   .loop-tag{white-space:normal;}
+  @media(min-width:480px){
+    /* Desktop has room — keep the loop label on a single line. */
+    .node-elapsed:has(.loop-tag){white-space:nowrap;}
+    .loop-tag{white-space:nowrap;}
+    .loop-tag .lp-br{display:none;}
+  }
 
   .node{position:absolute;left:-2rem;right:-2rem;display:flex;align-items:center;height:58px;margin-top:-29px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;pointer-events:none;}
   .node-elapsed{position:absolute;left:0;width:calc(34% - 2.4rem);text-align:right;
@@ -2683,7 +2689,7 @@ function renderRail(){
     const iconSvg = ico(s.icon);
     const isSub = (s.dayOffset==null && s.id!=='recovery');   // folk micro-stage: no published day-count
     const leftTag = (s.id==='pre_flower') ? s.elapsedLabel
-                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('↺ Next<br>cycle','↺ 下一轮')}</span>`
+                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('↺ Next<span class="lp-br"><br></span> cycle','↺ 下一轮')}</span>`
                   : (s.id==='flowering') ? '<span class="daa-zero">0 DAA</span>'
                   : '';
     const dateLine = isSub
