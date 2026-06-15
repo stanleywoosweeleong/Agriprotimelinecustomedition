@@ -2384,8 +2384,11 @@ function renderHistory(){
     let schedHtml = '';
     if(Array.isArray(r.schedule) && r.schedule.length){
       const today=new Date(); today.setHours(0,0,0,0);
-      const isTarget = (r.stage==='harvest');
-      const anchorStageId = {induction:'pre_flower',bud:'bud_emergence',matchstick:'matchstick',anthesis:'flowering',harvest:'harvest'}[r.stage];
+      // r.stage may be a short key (e.g. 'bud') or a full stage ID (e.g. 'bud_emergence').
+      const _stageKeyToId = {induction:'pre_flower',bud:'bud_emergence',matchstick:'matchstick',anthesis:'flowering',fruitset:'fruit_set',expansion:'fruit_expansion',maturation:'maturation',harvest:'harvest'};
+      const _isKnownId = (typeof stageTitleById==='object') && stageTitleById && (r.stage in stageTitleById);
+      const anchorStageId = _isKnownId ? r.stage : (_stageKeyToId[r.stage] || r.stage);
+      const isTarget = (anchorStageId==='harvest');
       let nextMarked=false;
       // If every scheduled date falls in the same calendar year, drop the year for a
       // cleaner display (so the Delete button doesn't get squeezed onto two lines).
