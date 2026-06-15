@@ -2537,8 +2537,8 @@ function renderRail(){
       : `<div class="node-date ${d.date?'':'tbd'}">${ico('calendar')} ${fmtDate(d.date)}</div>`;
     const logTray = `<div class="node-logpanel" aria-hidden="true">
         <button type="button" class="nl-cancel" data-logcancel="${idx}" aria-label="${LL('Cancel','取消')}" title="${LL('Cancel','取消')}">${ico('x')}</button>
-        <input type="date" class="nl-date-input" data-logdate="${idx}" aria-label="${LL('Date you saw this stage','你看到此阶段的日期')}">
-        <input type="text" class="nl-tree" data-logtree="${idx}" maxlength="12" placeholder="${LL('Tree ID (optional)','树号（可选）')}" aria-label="${LL('Tree ID, optional','树编号，可选')}">
+        <input type="date" class="nl-date-input" id="nl-date-${idx}" name="nl-date-${idx}" autocomplete="off" data-logdate="${idx}" aria-label="${LL('Date you saw this stage','你看到此阶段的日期')}">
+        <input type="text" class="nl-tree" id="nl-tree-${idx}" name="nl-tree-${idx}" autocomplete="off" data-logtree="${idx}" maxlength="12" placeholder="${LL('Tree ID (optional)','树号（可选）')}" aria-label="${LL('Tree ID, optional','树编号，可选')}">
         <button type="button" class="nl-ok" data-logok="${idx}" disabled aria-label="${LL('Save log','保存记录')}">${ico('check')} <span>${LL('Save','保存')}</span></button>
       </div>`;
     return `<div class="node ${active?'active':''}${s.id==='pre_flower'?' trigger':''}${isSub?' sub':''}" data-idx="${idx}" style="top:${top}%">
