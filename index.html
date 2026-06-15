@@ -66,7 +66,8 @@
     padding:.75rem 1rem;padding-top:calc(.75rem + env(safe-area-inset-top));
     display:flex;align-items:center;justify-content:space-between;gap:1rem;
   }
-  .brand{display:flex;align-items:center;gap:.7rem;}
+  .brand{display:flex;align-items:center;gap:.7rem;min-width:0;flex:1 1 auto;}
+  .brand > div{min-width:0;}
   .settings-cog{width:2.4rem;height:2.4rem;border-radius:.7rem;display:grid;place-items:center;color:var(--ink-faint);background:transparent;border:none;cursor:pointer;transition:.18s;}
   .settings-cog:hover{color:var(--ink);background:rgba(0,0,0,.05);}
   .settings-cog:active{transform:scale(.94);}
@@ -118,7 +119,8 @@
     width:38px;height:38px;border-radius:12px;background:var(--accent);color:#fff;
     display:grid;place-items:center;box-shadow:var(--shadow);flex:none;
   }
-  .brand h1{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;line-height:1;}
+  .brand h1{font-size:clamp(1rem,4.4vw,1.15rem);font-weight:800;letter-spacing:-.02em;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lang-zh .brand h1{white-space:normal;font-size:1.15rem;}
   .brand .sub{font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);margin-top:.25rem;}
   .nav-meta{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);text-align:right;}
   .nav-meta b{color:var(--accent);display:block;font-size:.8rem;letter-spacing:0;text-transform:none;}
@@ -170,13 +172,23 @@
   .node.active .node-dot{background:var(--accent-soft);border-color:var(--accent-bright);color:var(--accent);transform:translateX(-50%) scale(1.16);}
   .node.trigger .node-dot{border-style:dotted;border-width:2.5px;}
   .node-label{position:absolute;left:calc(34% + 2.1rem);right:0;pointer-events:auto;}
-  .node-name{font-size:.95rem;font-weight:700;line-height:1.15;color:var(--ink-soft);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
+  .node-name{font-size:.86rem;font-weight:700;line-height:1.18;color:var(--ink-soft);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
+  .lang-zh .node-name{font-size:.95rem;line-height:1.15;}
   .node.active .node-name{color:var(--ink);}
   .node-date{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:var(--accent);display:flex;align-items:center;gap:.3rem;margin-top:.2rem;}
   .node-date.tbd{color:var(--ink-faint);}
   /* two-tier: folk micro-stages (no published day-count) render lighter, smaller */
   .node.sub .node-dot{width:30px;height:30px;border-width:2px;border-style:dashed;opacity:.92;}
-  .node.sub .node-name{font-size:.86rem;font-weight:600;}
+  .node.sub .node-name{font-weight:600;font-size:.86rem;}
+  .lang-zh .node.sub .node-name{font-size:.95rem;}
+  /* Risk-stage labels ("… — Drop Risk"): desktop keeps the dash inline; mobile drops the
+     dash and pushes the risk phrase to its own line for a cleaner two-line read. */
+  .node-name .nn-text{min-width:0;}
+  .nn-risk{display:inline;}
+  @media(max-width:479px){
+    .node-name .nn-risk{display:block;}
+    .node-name .nn-dash{display:none;}
+  }
   .node-cal{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--accent-bright);display:flex;align-items:center;gap:.3rem;margin-top:.2rem;}
   .node-rel{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-faint);margin-top:.2rem;}
 
@@ -1241,7 +1253,7 @@ function getStages(baseHarvestDaa){
         consequence:LL("Surfactants coat and kill the insect visitors, the chemicals damage pollen and the stigma, and the residue and odour on the open flowers repel the night pollinators durian actually depends on — chiefly the cave nectar bat, with moths helping. Because most clones are self-incompatible, losing those visitors means poor fruit set.","表面活性剂会包裹并杀死昆虫访客，化学药剂损伤花粉和柱头，而开放花朵上的残留和气味会驱走榴莲真正依赖的夜间传粉者——主要是洞栖食蜜蝙蝠，蛾类辅助。由于大多数品种自交不亲和，失去这些访客就意味着坐果不良。"),
         mitigation:LL("Hold an absolute no-spray rule on open flowers through the peak bloom nights. If a neighbouring tree genuinely must be treated, avoid wetters and spreaders and keep all drift off the open blooms.","在盛花高峰的夜晚对开放花朵执行绝对的禁喷规则。如果邻近的某棵树确实必须处理，避免润湿剂和展着剂，并让所有药液飘移远离开放的花。")}},
 
-    { id:"fruit_set", title:LL("Young Fruitlet · Fruit Set — Chicken-Feet Drop Risk","幼果 · 坐果期 — 鸡脚落果风险"), pa:"pa-lime", icon:"target",
+    { id:"fruit_set", title:LL("Young Fruitlet · Fruit Set — Chicken-Feet Drop Risk","幼果 · 坐果期 — 鸡脚落果风险"), pa:"pa-lime", icon:"target",
       dayOffset:21, relativeTime:LL("1-4 Weeks Post-Bloom","盛花后 1–4 周"), elapsedLabel:"21 DAA",
       phenology:LL("What you see: fertilised ovaries swell from pea-size to ping-pong size, and the natural break-points (abscission rings) on the stalks become obvious. A thick, deep-green stalk joint marks a fruitlet the tree has 'decided' to keep; a yellowing, thinning joint is one it is about to drop. When a fruitlet does drop, it leaves behind a bare, splayed cluster of empty stalks — what your farmers call 「鸡脚」 (chicken feet). What it means: the tree is setting, then thinning, its crop, and this is one of the two stages (with thumb 「拇指」 size) growers most dread for drop. Common misread: the steady fall of small fruitlets is read as failure or disease, when most of it is normal self-thinning — and panicking into feeding or spraying usually makes it worse.","你会看到：受精的子房从豌豆大小膨大到乒乓球大小，花梗上天然的断裂点（离层环）变得明显。粗壮、深绿的梗节标志着树「决定」保留的幼果；发黄、变细的梗节则是它即将脱落的。当幼果脱落后，留下的是一簇光秃、张开的空梗——有些农友称之为「鸡脚」。这意味着什么：树正在坐果，随后疏果，而这是农友最害怕落果的两个阶段之一（另一个是「拇指」大小）。常见误判：小幼果的持续脱落被读作失败或病害，而其中大多数是正常的自然疏果——惊慌地去施肥或喷药通常会让情况更糟。"),
       gdd:LL(`300-450 • ${gddLabel}`,`300-450 • 积温(GDD)`), npk:LL("N/A","暂无"),
@@ -1282,7 +1294,7 @@ function getStages(baseHarvestDaa){
         consequence:LL("A nitrogen flush throws up new leaves that outcompete the fruitlets for sugar and, with the stress, push the tree to release ethylene and ABA at the stalk joint — so it sheds the young fruit to feed the leaves. The drop can be heavy.","一次氮引发的抽梢会长出新叶，与幼果争夺糖分，再加上胁迫，促使树在梗节处释放乙烯和 ABA——于是它舍弃幼果去喂养叶片。落果可能很严重。"),
         mitigation:LL("Hold all nitrogen and FAA, and keep water steady. A foliar calcium-boron on the fruit-stalk joints firms the abscission zone and helps hold the set. If FAA was applied by mistake and a flush starts, a moderate potassium (SOP) input can act as a partial brake, pushing energy back toward the fruit — but prevention beats this rescue every time.","停止一切氮和 FAA，保持水分稳定。在果柄梗节上做一次叶面钙硼能使离层区变得坚实、有助于保住坐果。如果误施了 FAA、抽梢开始，适度的钾（硫酸钾 SOP）投入可作为部分刹车，把能量推回果实——但预防永远胜过这种补救。")}},
 
-    { id:"size_thumb", title:LL("Thumb / Guli size — Chicken-Feet Drop Risk","拇指 / guli 大小 — 鸡脚落果风险"), pa:"pa-lime", icon:"target",
+    { id:"size_thumb", title:LL("Thumb / Guli size — Chicken-Feet Drop Risk","拇指 / guli 大小 — 鸡脚落果风险"), pa:"pa-lime", icon:"target",
       dayOffset:null, relativeTime:LL("Guli-size fruitlet","弹珠大小幼果"), elapsedLabel:LL("Calibrate","校准中"),
       rationale:LL("The second 鸡脚 drop window — a field checkpoint for the dated 幼果 stage's drop-risk work.","第二个「鸡脚」落果窗口——为带日期「幼果」阶段防落果作业设的田间检查点。"),
       phenology:LL("What you see (grower's term): the held fruitlets reach roughly thumb or guli (marble) size — your farmers' 「拇指」 stage, between young fruit and the egg-size fruit. This is the second of the two stages your farmers most dread, because fruit lost here also leaves the bare 「鸡脚」 (chicken-feet) stalks. Why there is no date here: this is a local size term with no separate published day-count, so the app projects no date and asks you to log when your fruit actually reaches thumb size. The dated 「幼果」 stage just before carries the full drop-risk agronomy — this marker is your field checkpoint for the same window.","你会看到（农友用语）：保住的幼果长到大约拇指或弹珠（guli）大小——有些农友称之为「拇指」阶段，介于幼果与鸡旦大小之间。这是你农友最害怕的两个阶段中的第二个，因为在此处失去的果实同样会留下光秃的「鸡脚」梗。这里为何没有日期：这是一个当地用来称呼果实大小、但没有单独已发表天数的阶段，因此本应用不预计日期，并请你记录果实实际长到拇指大小的时间。紧接其前的带日期「幼果」阶段载有完整的落果风险农技——本标记是你针对同一窗口的田间检查点。"),
@@ -2487,6 +2499,18 @@ function updateLeftBracket(){
   if(existing) existing.remove();
   if(html){ const spine=rail.querySelector('.brackets-left'); if(spine) spine.insertAdjacentHTML('afterend', html); else rail.insertAdjacentHTML('afterbegin', html); }
 }
+function railTitleHTML(title){
+  // Escape first (titles are plain text). Then, for the two "… — Drop Risk" stages,
+  // wrap the dash+suffix so CSS can drop the dash and break to a new line on mobile,
+  // while desktop keeps it inline. Delimiter is NBSP + em-dash + space ("\u00A0\u2014 ").
+  const esc = (typeof escH==="function") ? escH : (x=>String(x));
+  const SEP = "\u00A0\u2014 ";
+  const i = title.indexOf(SEP);
+  if(i<0) return '<span class="nn-text">' + esc(title) + '</span>';
+  const head = esc(title.slice(0, i));
+  const tail = esc(title.slice(i + SEP.length));
+  return '<span class="nn-text">' + head + '<span class="nn-risk"><span class="nn-dash"> \u2014 </span>' + tail + '</span></span>';
+}
 function renderRail(){
   const stages = getStagesNow();
   const dates = computeDates();
@@ -2563,7 +2587,7 @@ function renderRail(){
       <div class="node-label">
         <div class="node-slide">
           <div class="node-face">
-            <div class="node-name">${s.title}${d.synced?` <span class="gdd-pip">${ico('cpu')} GDD</span>`:''}</div>
+            <div class="node-name">${railTitleHTML(s.title)}${d.synced?` <span class="gdd-pip">${ico('cpu')} GDD</span>`:''}</div>
             ${dateLine}
           </div>
         </div>
@@ -2582,7 +2606,7 @@ function renderRail(){
     ${nodes}`;
   // Scale rail height to the number of stages so bilingual labels have room (was a fixed 660px
   // tuned for 9 stages; the Personal Edition can carry 16+). ~62px per stage reads comfortably.
-  rail.style.height = Math.max(660, (stages.length) * 62) + 'px';
+  rail.style.height = Math.max(660, (stages.length) * 90) + 'px';
 
   rail.querySelectorAll('.node').forEach(el=>{
     const idx=+el.dataset.idx;
