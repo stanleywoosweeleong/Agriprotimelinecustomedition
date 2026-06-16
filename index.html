@@ -402,6 +402,15 @@
   .hist-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.25rem;}
   .hist-clone{font-size:.98rem;font-weight:800;color:var(--ink);}
   .hist-sub{font-size:.86rem;font-weight:700;color:var(--ink-soft);line-height:1.5;}
+  /* Baseline summary ("Bloom (DAA 0): … · est. harvest …"). On a narrow phone the single line
+     wraps mid-phrase, which reads poorly. Below 480px (both languages), break it into two clean
+     lines — bloom on one, est. harvest on the next — and hide the middot separator. Every desktop
+     view keeps the original single inline line. */
+  .bl-bloom,.bl-harv{white-space:nowrap;}
+  @media(max-width:479px){
+    .hist-baseline .bl-bloom,.hist-baseline .bl-harv{display:block;}
+    .hist-baseline .bl-sep{display:none;}
+  }
   .hist-tree{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);border-radius:1rem;padding:.12rem .45rem;margin-left:.35rem;vertical-align:middle;}
   .sync-note{margin-top:.6rem;font-size:.76rem;font-weight:600;line-height:1.5;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:.7rem;padding:.6rem .75rem;}
   #treeId.ask{border-color:var(--accent-bright);box-shadow:0 0 0 3px var(--accent-soft);}
@@ -2157,7 +2166,15 @@ function exportRecordsXLSX(){
     cells.push({t:'text', v:r.tree||''});
     cells.push({t:'text', v:obsStageNameIn(r,lang)});
     cells.push({t:'date', v:_xlDate(r.anthesis)});
-    STAGE_SEQ.forEach(id=>{ const d=recStageDate(r,id); cells.push({t:'date', v:d?_xlDate(d):null}); });
+    STAGE_SEQ.forEach(id=>{
+      // Projected date from the schedule, if any. Folk stages (red/white eye, thumb/guli, egg…)
+      // carry no projection, so their column is normally blank — but if THIS record is itself an
+      // observation logged at that folk stage, write the observed date into its column so the
+      // calibration point is captured in the export rather than lost.
+      let d = recStageDate(r, id);
+      if(!d && resolveStageId(r.stage)===id && r.observed) d = r.observed;
+      cells.push({t:'date', v:d?_xlDate(d):null});
+    });
     return cells;
   });
   const blob=_buildXlsx(headers, widths, matrix, LL('Records','记录'));
@@ -2311,6 +2328,43 @@ function observationConflict(farm, rec){
   }
   return null;
 }
+// Dated milestones only (stages that carry a real DAA offset), in chronological order.
+// Folk size-stages (red/white eye, thumb/guli, egg/fist/bowl/full) have no date and are
+// skipped, so "milestones jumped" counts true phenological checkpoints, not the optional
+// "log when you see it" markers.
+const DATED_SEQ = ['pre_flower','bud_emergence','matchstick','flowering','fruit_set','fruit_expansion','maturation','harvest'];
+// Map any stage (dated or folk) to its position on the dated-milestone ruler: a folk stage
+// takes the index of the next dated milestone at or after it on STAGE_SEQ, so e.g. logging
+// "Thumb/Guli" counts as being at Fruit Set's milestone for skip-distance purposes.
+function datedMilestoneIndex(stageKey){
+  const id = resolveStageId(stageKey);
+  const direct = DATED_SEQ.indexOf(id);
+  if(direct>=0) return direct;
+  const seqPos = STAGE_SEQ.indexOf(id);
+  for(let k=0;k<DATED_SEQ.length;k++){ if(STAGE_SEQ.indexOf(DATED_SEQ[k])>=seqPos) return k; }
+  return DATED_SEQ.length-1;
+}
+// Forward-skip guard: if the new stage is MORE THAN 2 dated milestones ahead of the same
+// tree's most recent logged stage, return the previous + new stage so the caller can ask the
+// grower to confirm. Never blocks — purely a "did you mean to skip this far?" check. Forward
+// only; backward regressions are handled by observationConflict().
+function forwardSkipCheck(farm, rec){
+  const peers = (farm.history||[]).filter(r=>!r.deleted && r.clone===rec.clone && (r.tree||'')===(rec.tree||''));
+  if(!peers.length) return null;
+  // most recent by logged time
+  const last = peers.slice().sort((a,b)=>b.at-a.at)[0];
+  const lastIdx = datedMilestoneIndex(last.stage);
+  const newIdx = datedMilestoneIndex(rec.stage);
+  const jump = newIdx - lastIdx;
+  if(jump > 2){
+    const SL = z => stageNameIn(resolveStageId(z), state.lang);
+    return { skipped: jump-1, msg:LL(
+      `You're jumping from ${SL(last.stage)} straight to ${SL(rec.stage)}, skipping ${jump-1} milestone${jump-1>1?'s':''} in between. Durian stages don't usually advance that far between observations. If the date and stage are right, tap Save again to record it anyway — otherwise check them first.`,
+      `你从 ${SL(last.stage)} 直接跳到 ${SL(rec.stage)}，中间跳过了 ${jump-1} 个阶段。榴莲物候通常不会在两次观察之间推进这么远。如果日期和阶段无误，请再次点击「保存」照常记录——否则请先检查。`
+    ) };
+  }
+  return null;
+}
 function recordObservation(){
   const farm = activeFarm();
   if(!farm || !state.anchorDate) return {ok:false};
@@ -2348,6 +2402,15 @@ function recordObservation(){
   if((farm.history||[]).some(r=>!r.deleted && r.clone===rec.clone && (r.tree||'')===(rec.tree||'') && r.stage===rec.stage && r.observed===rec.observed)) return {ok:true, dup:true};
   const conflict = observationConflict(farm, rec);
   if(conflict) return {ok:false, msg:conflict.msg, needId:!conflict.tree};
+  // Forward-skip plausibility check — confirm-to-proceed, never blocks. The grower taps Save
+  // once -> we surface the prompt and remember this exact entry; tapping Save again (same
+  // clone/tree/stage/date) clears the gate and records it as-is.
+  const sig = `${rec.clone}|${rec.tree||''}|${rec.stage}|${rec.observed}`;
+  if(state._skipOK !== sig){
+    const skip = forwardSkipCheck(farm, rec);
+    if(skip){ state._skipOK = sig; return {ok:false, confirmSkip:true, msg:skip.msg}; }
+  }
+  state._skipOK = null; state._skipPending = null;
   farm.history.push(rec);
   persistFarms();
   return {ok:true};
@@ -2375,9 +2438,15 @@ function logStageInline(stageIdx, dateStr, treeId){
     state.anchorType=prevAnchor; state.anchorDate=prevDate; state.treeId=prevTree;
     showToast(tr('toastDup'));
     renderAll();
+  } else if(res && res.confirmSkip){
+    // plausibility prompt — keep the tray open and the anchor as-is so the next Save tap
+    // (same stage/date/tree) clears the gate and records it. recordObservation() has already
+    // armed the one-shot gate for this exact entry.
+    if(res.msg) showConflict(res.msg);
   } else {
     // conflict (e.g. same tree at two stages) — restore prior anchor, surface the message
     state.anchorType=prevAnchor; state.anchorDate=prevDate; state.treeId=prevTree;
+    state._skipOK = null; state._skipPending = null;
     renderAll();
     if(res && res.msg) showConflict(res.msg);
   }
@@ -2480,7 +2549,7 @@ function renderHistory(){
     return `<div class="hist-row"${tintStyle}>
       <div class="hist-top"><span class="hist-clone">${esc(recCloneName(r))}${r.tree?` <span class="hist-tree">${LL('Tree','树')} ${esc(r.tree)}</span>`:''}</span>${drift}</div>
       <div class="hist-sub">${esc(stageTitleById[r.stage]||obsLabel(r.stage))}${LL(' observed ',' 观察于 ')}${esc(fmtSched(r.observed))}</div>
-      <div class="hist-sub">${LL('Bloom (DAA 0)','盛花 (DAA 0)')}: ${esc(fmtSched(r.anthesis))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtSched(r.harvest)):LL('TBD','待定')}</div>
+      <div class="hist-sub hist-baseline"><span class="bl-bloom">${LL('Bloom (DAA 0)','盛花 (DAA 0)')}: ${esc(fmtSched(r.anthesis))}</span><span class="bl-sep"> &middot; </span><span class="bl-harv">${LL('Est. harvest','预计采收')} ${r.harvest?esc(fmtSched(r.harvest)):LL('TBD','待定')}</span></div>
       ${schedHtml}
       <div class="hist-foot"><span class="hist-meta">${LL('logged','记录于')} ${esc(when)}</span><span class="hist-foot-btns"><button class="rec-btn wa" data-share-entry data-id="${r.id}">${ico('wa')} WhatsApp</button><button class="rec-btn" data-action="del" data-id="${r.id}">${ico('trash')} ${LL('Delete','删除')}</button></span></div>
     </div>`;
@@ -2492,7 +2561,7 @@ function renderHistory(){
       return `<div class="hist-row deleted">
         <div class="hist-info">
           <div class="hist-clone">${esc(recCloneName(r))}</div>
-          <div class="hist-sub">${esc(stageTitleById[r.stage]||obsLabel(r.stage))} &middot; ${esc(fmtYmd(r.observed))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtYmd(r.harvest)):LL('TBD','待定')}</div>
+          <div class="hist-sub">${esc(stageTitleById[r.stage]||obsLabel(r.stage))} &middot; ${esc(fmtYmd(r.observed))} &middot; ${LL('Est. harvest','预计采收')} ${r.harvest?esc(fmtYmd(r.harvest)):LL('TBD','待定')}</div>
         </div>
         <div class="rec-actions">
           <button class="rec-btn restore" data-action="restore" data-id="${r.id}">${ico('undo')} ${LL('Restore','恢复')}</button>
